@@ -46,7 +46,7 @@ export default function TextBox({
           }}
           readOnly={!!interpretation}
         />
-        <div className="absolute bottom-1 right-1 z-10 bg-background/50 backdrop-blur-sm rounded-full">
+        <div className="absolute bottom-3 right-3 z-10 bg-background/50 backdrop-blur-sm rounded-full">
           {interpretation ? (
             <Button
               variant="outline"

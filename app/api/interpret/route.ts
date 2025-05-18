@@ -11,23 +11,10 @@ export async function POST(req: Request) {
       );
     }
 
-    // Detectar el idioma del sueño (simplificado)
-    const isEnglish = /^[a-zA-Z0-9\s.,!?;:()\-'"[\]{}]+$/.test(dream);
-
-    const prompt = isEnglish
-      ? `
-        You are an expert in dream interpretation. Analyze the following dream and provide a 
-        detailed but concise interpretation (1 paragraph). Include possible symbolic meanings, 
-        connections to the dreamer's life, and suggestions about what their subconscious might be processing. Talk in second person.
-        
-        Dream: "${dream}"
-        
-        Interpretation:
-      `
-      : `
+    const prompt = `
         Eres un experto en interpretación de sueños. Analiza el siguiente sueño y proporciona una interpretación 
         detallada pero concisa (1 párrafo). Incluye posibles significados simbólicos, 
-        conexiones con la vida del soñador y sugerencias sobre qué podría estar procesando su subconsciente. Habla en segunda persona.
+        conexiones con la vida del soñador y sugerencias sobre qué podría estar procesando su subconsciente. Habla en segunda persona. responde en español.
         
         Sueño: "${dream}"
         

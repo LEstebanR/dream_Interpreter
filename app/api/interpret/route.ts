@@ -17,8 +17,8 @@ export async function POST(req: Request) {
     const prompt = isEnglish
       ? `
         You are an expert in dream interpretation. Analyze the following dream and provide a 
-        detailed but concise interpretation (maximum 3 paragraphs). Include possible symbolic meanings, 
-        connections to the dreamer's life, and suggestions about what their subconscious might be processing. Talk in first person.
+        detailed but concise interpretation (1 paragraph). Include possible symbolic meanings, 
+        connections to the dreamer's life, and suggestions about what their subconscious might be processing. Talk in second person.
         
         Dream: "${dream}"
         

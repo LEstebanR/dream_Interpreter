@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Interpretador de sueños",
+  title: "OniricApp",
   description: "Descubre el significado de tus sueños",
 };
 

@@ -12,13 +12,17 @@ export async function POST(req: Request) {
     }
 
     const prompt = `
-        Eres un experto en interpretación de sueños. Analiza el siguiente sueño y proporciona una interpretación 
-        detallada pero concisa (1 párrafo). Incluye posibles significados simbólicos, 
-        conexiones con la vida del soñador y sugerencias sobre qué podría estar procesando su subconsciente. Habla en segunda persona. responde en español.
-        
+        ¿Qué pueden significar estos sueños? 
         Sueño: "${dream}"
-        
-        Interpretación:
+
+        ## Contexto 
+        soy una persona que está muy interesada en mejorar sus hábitos de sueño, en el autoconocimiento y en conectarse más con su subconsciente.
+
+        ## Rol
+        Responde como un psicólogo que me conoce de mucho tiempo atrás, que está centrando en el psicoanálisis y que me aconseja.
+
+        ## Expectativa 
+        Dame una interpretación general, no desgloses elemento por elemento, en un párrafo dame el mensaje general del sueño identificando los mensajes que mi subconsciente quiere darme y consejos prácticos para mi día a día. Responde en segunda persona y en español.
       `;
 
     if (!process.env.OPENROUTER_API_KEY || !process.env.NEXT_PUBLIC_APP_URL) {

@@ -36,17 +36,19 @@ export default function TextBox({
 
   return (
     <div className="flex flex-col items-center justify-center w-full max-w-3xl mx-2 gap-4 justify-self-end">
-      <div className="w-full relative">
-        <Textarea
-          placeholder="Describe tu sueño aquí..."
-          className="w-full min-h-[6rem] max-h-[12rem] border-2 border-secondary/20 rounded-2xl p-4 pb-16 focus:border-primary/50 focus:ring-0 transition-colors duration-200 bg-background/50 backdrop-blur-sm shadow-sm overflow-y-auto"
-          value={dream}
-          onChange={(e) => {
-            setDream(e.target.value);
-          }}
-          readOnly={!!interpretation}
-        />
-        <div className="absolute bottom-3 right-3 z-10 bg-background/50 backdrop-blur-sm rounded-full">
+      <div className="w-full flex flex-col gap-4 p-4 border-2 rounded-xl border-secondary backdrop-blur-sm focus-within:border-secondary">
+        <div className="w-full relative max-w-3xl">
+          <Textarea
+            placeholder="Describe tu sueño aquí..."
+            className="w-full min-h-[6rem] max-h-[12rem] rounded-xl border-0 focus:ring-0 py-2 text-lg"
+            value={dream}
+            onChange={(e) => {
+              setDream(e.target.value);
+            }}
+            readOnly={!!interpretation}
+          />
+        </div>
+        <div className="w-full flex justify-end items-center">
           {interpretation ? (
             <Button
               variant="outline"
@@ -58,6 +60,7 @@ export default function TextBox({
               }}
             >
               <Trash className="w-4 h-4" />
+              Borrar sueño
             </Button>
           ) : (
             <Button
@@ -69,6 +72,7 @@ export default function TextBox({
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  Interpretando...
                 </>
               ) : (
                 <>

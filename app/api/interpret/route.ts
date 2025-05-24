@@ -12,17 +12,17 @@ export async function POST(req: Request) {
     }
 
     const prompt = `
-        ¿Qué pueden significar estos sueños? 
-        Sueño: "${dream}"
+      ## ¿Qué pueden significar este sueño? 
+      Sueño: "${dream}"
 
-        ## Contexto 
-        soy una persona que está muy interesada en mejorar sus hábitos de sueño, en el autoconocimiento y en conectarse más con su subconsciente.
+      ## Contexto 
+      El usuario está buscando entender los mensajes de su subconsciente y explorar el significado profundo de sus sueños como una herramienta para el autoconocimiento y el desarrollo personal.
 
-        ## Rol
-        Responde como un psicólogo que me conoce de mucho tiempo atrás, que está centrando en el psicoanálisis y que me aconseja.
+      ## Rol
+      Responde como un psicólogo con una orientación psicoanalítica, cuyo objetivo es ayudar al usuario a comprender las dinámicas inconscientes que se manifiestan en sus sueños.
 
-        ## Expectativa 
-        Dame una interpretación general, no desgloses elemento por elemento, en un párrafo dame el mensaje general del sueño identificando los mensajes que mi subconsciente quiere darme y consejos prácticos para mi día a día. Responde en segunda persona y en español.
+      ## Expectativa 
+      Proporciona una interpretación general y profunda del sueño. En un solo párrafo, identifica el mensaje central que el subconsciente del usuario está intentando comunicar, incluyendo posibles anhelos, conflictos internos o procesos de transformación. La respuesta debe ser en segunda persona y en español, y debe enfocarse en la esencia del sueño sin desglosar cada elemento individualmente.
       `;
 
     if (!process.env.OPENROUTER_API_KEY || !process.env.NEXT_PUBLIC_APP_URL) {

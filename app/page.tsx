@@ -11,7 +11,7 @@ export default function Home() {
       <div className="flex-1 flex items-center">
         <div className="flex flex-col items-center gap-4 w-full">
           <h1 className="text-5xl font-bold text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent ">
-            Interpretador de sueños
+            Interpreta tus sueños
           </h1>
           <div className="flex flex-col items-center justify-center gap-4 md:w-3xl px-2 my-4  ">
             {interpretation ? (

@@ -45,6 +45,12 @@ export default function TextBox({
             onChange={(e) => {
               setDream(e.target.value);
             }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleInterpret();
+              }
+            }}
             readOnly={!!interpretation}
           />
         </div>

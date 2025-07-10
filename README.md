@@ -1,24 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Dream Interpreter 🌙
 
-## Getting Started
+Una aplicación web que interpreta tus sueños usando inteligencia artificial con enfoque psicológico.
 
-First, run the development server:
+## Configuración Inicial
+
+### 1. Variables de Entorno
+
+Crea un archivo `.env.local` en la raíz del proyecto con:
+
+```env
+# API Key de OpenRouter (obtener en https://openrouter.ai/)
+OPENROUTER_API_KEY=tu_api_key_aqui
+
+# URL de la aplicación (para desarrollo local)
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+### 2. Obtener API Key
+
+1. Ve a [OpenRouter.ai](https://openrouter.ai/)
+2. Crea una cuenta gratuita
+3. Genera tu API key
+4. Cópiala en el archivo `.env.local`
+
+### 3. Instalar dependencias
+
+```bash
+npm install
+# o
+yarn install
+# o
+pnpm install
+# o
+bun install
+```
+
+### 4. Ejecutar el servidor de desarrollo
 
 ```bash
 npm run dev
-# or
+# o
 yarn dev
-# or
+# o
 pnpm dev
-# or
+# o
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre [http://localhost:3000](http://localhost:3000) para ver la aplicación.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Solución de Problemas
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### "API key no configurada"
+
+- Verifica que `OPENROUTER_API_KEY` esté en tu archivo `.env.local`
+- Asegúrate de que la API key sea válida
+
+### "URL de la aplicación no configurada"
+
+- Verifica que `NEXT_PUBLIC_APP_URL` esté en tu archivo `.env.local`
+- Para desarrollo local usa: `http://localhost:3000`
+
+### "API key inválida"
+
+- Verifica que tu API key de OpenRouter sea correcta
+- Revisa que tengas créditos disponibles en tu cuenta
+
+### "Error de conexión"
+
+- Verifica tu conexión a internet
+- Asegúrate de que las variables de entorno estén configuradas correctamente
+
+## Características
+
+- 🧠 Interpretación psicológica de sueños
+- 🎨 Interfaz moderna y responsive
+- 🔒 Segura (no almacena datos personales)
+- 🚀 Rápida y eficiente
 
 ## Learn More
 

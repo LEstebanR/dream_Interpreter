@@ -42,7 +42,7 @@ export async function POST(req: Request) {
         method: "POST",
         headers,
         body: JSON.stringify({
-          model: "meta-llama/llama-3.3-8b-instruct:free",
+          model: "qwen/qwen3-14b:free",
           messages: [
             {
               role: "user",

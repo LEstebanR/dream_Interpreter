@@ -10,10 +10,7 @@ export default async function Home({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const [t, session] = await Promise.all([
-    getTranslations("Home"),
-    auth(),
-  ]);
+  const [t, session] = await Promise.all([getTranslations("Home"), auth()]);
 
   return (
     <div className="relative flex flex-col items-center justify-between w-full">
@@ -41,10 +38,10 @@ export default async function Home({
           {/* client island */}
           <DreamSection subtitle={t("subtitle")} />
 
-          {/* auth CTA */}
+          {/* auth CTA — solo cuando no hay sesión */}
           {!session?.user && (
             <div
-              className="flex items-center gap-3 opacity-0"
+              className="flex items-center gap-2 opacity-0"
               style={{ animation: "fade-up 0.6s ease-out 0.6s both" }}
             >
               <Link

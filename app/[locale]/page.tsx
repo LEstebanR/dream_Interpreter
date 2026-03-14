@@ -13,7 +13,7 @@ export default async function Home({
   const [t, session] = await Promise.all([getTranslations("Home"), auth()]);
 
   return (
-    <div className="relative flex flex-col items-center justify-between w-full">
+    <div className="relative flex flex-1 flex-col items-center justify-between w-full">
       <div className="relative z-10 flex-1 flex items-center w-full">
         <div className="flex flex-col items-center gap-3 w-full px-4">
 

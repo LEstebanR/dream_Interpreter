@@ -13,7 +13,7 @@ export function UserInfo() {
 
   return (
     <div className="flex items-center gap-2 min-w-0">
-      {image && (
+      {image ? (
         <Image
           src={image}
           alt={name}
@@ -21,6 +21,10 @@ export function UserInfo() {
           height={24}
           className="rounded-full shrink-0"
         />
+      ) : (
+        <span className="flex shrink-0 items-center justify-center w-6 h-6 rounded-full bg-primary/20 text-primary text-[10px] font-semibold uppercase">
+          {name.charAt(0)}
+        </span>
       )}
       <span className="text-sm font-medium text-foreground/80 capitalize truncate">
         {name}

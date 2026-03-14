@@ -51,12 +51,12 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased grid min-h-dvh grid-rows-[auto_1fr_auto]`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen pt-12`}
       >
         <AuthSessionProvider>
           <NextIntlClientProvider messages={messages}>
             <Header />
-            {children}
+            <main className="flex flex-1 flex-col">{children}</main>
             <Analytics />
             <Footer />
           </NextIntlClientProvider>

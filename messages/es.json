@@ -87,6 +87,7 @@
     "signInLink": "Iniciar sesión",
     "signUpLink": "Crear cuenta",
     "profile": "Mi perfil",
-    "billing": "Suscripción"
+    "billing": "Suscripción",
+    "freePlan": "Gratis"
   }
 }

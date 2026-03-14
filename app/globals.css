@@ -112,11 +112,20 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); filter: blur(6px); }
+  to   { opacity: 1; transform: translateY(0);    filter: blur(0);   }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, oklch(0.75 0.18 25 / 0.08), transparent),
+      radial-gradient(circle at 1px 1px, oklch(0.145 0 0 / 0.06) 1px, transparent 0);
+    background-size: auto, 28px 28px;
   }
 }

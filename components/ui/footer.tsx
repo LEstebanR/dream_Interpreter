@@ -1,29 +1,33 @@
-import { Github, Heart } from "lucide-react";
+import { Github } from "lucide-react";
 import Link from "next/link";
-export function Footer() {
+import { getTranslations } from "next-intl/server";
+import { AnimatedHeart } from "./animated-heart";
+
+export async function Footer() {
+  const t = await getTranslations("Footer");
+
   return (
-    <footer className="my-8 w-full">
-      <div className="z-10 flex flex-wrap items-center justify-center gap-x-1 gap-y-3 sm:gap-x-2">
+    <footer className="w-full border-t border-border/40 bg-background/60 backdrop-blur-md">
+      <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-2 px-4 py-4 text-xs text-muted-foreground">
         <Link
           href="https://github.com/LEstebanR/dream_Interpreter"
           aria-label="Github project"
           target="_blank"
+          className="hover:text-foreground transition-colors"
         >
-          <Github className="h-6 w-6" />
+          <Github className="h-4 w-4" />
         </Link>
-        <div className="bg-primary mx-2 h-[30px] w-[0.5px] rotate-[20deg]"></div>
-        <div className="flex items-center gap-x-1 text-xs sm:text-base">
-          <span className="text-slate-500">Hecho con</span>
-          <Heart className="h-4 w-4 text-red-500" />
-          <span className="text-slate-500">por</span>
+        <div className="h-3 w-px bg-border/60" />
+        <span className="flex items-center gap-1">
+          {t("madeWith")} <AnimatedHeart /> {t("by")}
           <Link
-            className="text-primary"
             href="https://www.lesteban.dev"
             target="_blank"
+            className="text-primary hover:text-primary/80 transition-colors"
           >
             LEstebanR
           </Link>
-        </div>
+        </span>
       </div>
     </footer>
   );

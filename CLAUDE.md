@@ -81,8 +81,8 @@ Session       — NextAuth sessions
 
 | Tier | Modelo IA | Interpretaciones/día | Diario |
 |------|-----------|----------------------|--------|
-| Anónimo | `qwen/qwen3-14b:free` | 3 (por IP) | ✗ |
-| Free (registrado) | `qwen/qwen3-14b:free` | 5 | ✗ |
+| Anónimo | `nvidia/nemotron-3-nano-30b-a3b:free` | 3 (por IP) | ✗ |
+| Free (registrado) | `nvidia/nemotron-3-nano-30b-a3b:free` | 5 | ✗ |
 | Premium | `anthropic/claude-3.5-haiku` o mejor vía OpenRouter | Ilimitado | ✓ |
 
 La selección de modelo ocurre en `/api/interpret/route.ts` leyendo `session.user.isPremium`.
@@ -113,6 +113,18 @@ Nunca hardcodear valores. Siempre leer desde `process.env`.
 
 ---
 
+## Package manager
+
+Usar siempre **bun** para instalar dependencias y ejecutar scripts:
+```bash
+bun add <paquete>
+bun add -d <paquete>   # devDependency
+bun run <script>
+```
+Nunca usar `npm`, `yarn` o `pnpm`.
+
+---
+
 ## Convenciones de código
 
 - **Componentes**: PascalCase, un componente por archivo
@@ -139,7 +151,7 @@ if (!session?.user?.isPremium) {
 ```ts
 const model = session?.user?.isPremium
   ? 'anthropic/claude-3.5-haiku'
-  : 'qwen/qwen3-14b:free'
+  : 'nvidia/nemotron-3-nano-30b-a3b:free'
 ```
 
 ### Webhook de Stripe — siempre verificar firma

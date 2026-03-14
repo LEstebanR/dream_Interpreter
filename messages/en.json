@@ -1,0 +1,18 @@
+{
+  "Metadata": {
+    "description": "Discover the meaning of your dreams"
+  },
+  "Footer": {
+    "madeWith": "Made with",
+    "by": "by"
+  },
+  "Home": {
+    "title": "Interpret your dreams",
+    "subtitle": "Describe your dream and discover its meaning"
+  },
+  "TextBox": {
+    "placeholder": "Describe your dream here...",
+    "interpreting": "Interpreting...",
+    "clearDream": "Clear dream"
+  }
+}

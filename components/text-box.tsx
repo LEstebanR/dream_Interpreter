@@ -1,9 +1,10 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Send, Trash } from "lucide-react";
+import { Loader2, Send, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function TextBox({
   interpretation,
@@ -14,17 +15,18 @@ export default function TextBox({
 }) {
   const [dream, setDream] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  const t = useTranslations("TextBox");
+  const locale = useLocale();
 
   const handleInterpret = async () => {
     if (!dream.trim()) return;
-
     setIsLoading(true);
     try {
       const response = await fetch("/api/interpret", {
         method: "POST",
-        body: JSON.stringify({ dream }),
+        body: JSON.stringify({ dream, locale }),
       });
-
       const data = await response.json();
       setInterpretation(data.interpretation);
     } catch (error) {
@@ -34,17 +36,48 @@ export default function TextBox({
     }
   };
 
+  const canSend = !isLoading && !!dream.trim() && !interpretation;
+
   return (
-    <div className="flex flex-col items-center justify-center w-full max-w-3xl mx-2 gap-4 justify-self-end">
-      <div className="w-full flex flex-col gap-4 p-4 border-2 rounded-xl border-secondary backdrop-blur-sm focus-within:border-secondary">
-        <div className="w-full relative max-w-3xl">
+    <div className="w-full max-w-3xl px-4 pb-6">
+      {/* glow border wrapper */}
+      <div className="relative rounded-2xl p-px">
+        {/* animated gradient border */}
+        <motion.div
+          className="absolute inset-0 rounded-2xl"
+          animate={{
+            opacity: isFocused ? 1 : 0,
+            background: isFocused
+              ? "linear-gradient(135deg, var(--primary), var(--secondary), var(--primary))"
+              : "none",
+          }}
+          transition={{ duration: 0.4, ease: "easeInOut" }}
+        />
+
+        {/* static fallback border */}
+        <div className="absolute inset-0 rounded-2xl border border-border" />
+
+        {/* inner card */}
+        <div className="relative rounded-2xl bg-background/90 backdrop-blur-md overflow-hidden">
+          {/* loading pulse overlay */}
+          <AnimatePresence>
+            {isLoading && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: [0, 0.06, 0] }}
+                transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute inset-0 z-10 pointer-events-none bg-primary rounded-2xl"
+              />
+            )}
+          </AnimatePresence>
+
           <Textarea
-            placeholder="Describe tu sueño aquí..."
-            className="w-full min-h-[6rem] max-h-[12rem] rounded-xl border-0 focus:ring-0 py-2 text-lg"
+            placeholder={t("placeholder")}
+            className="w-full min-h-[8rem] max-h-[14rem] resize-none border-0 bg-transparent focus-visible:ring-0 shadow-none px-5 pt-5 pb-2 text-base leading-relaxed placeholder:text-muted-foreground/40"
             value={dream}
-            onChange={(e) => {
-              setDream(e.target.value);
-            }}
+            onChange={(e) => setDream(e.target.value)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
@@ -53,40 +86,83 @@ export default function TextBox({
             }}
             readOnly={!!interpretation}
           />
-        </div>
-        <div className="w-full flex justify-end items-center">
-          {interpretation ? (
-            <Button
-              variant="outline"
-              size="sm"
-              className="rounded-full hover:bg-secondary/10 transition-colors"
-              onClick={() => {
-                setInterpretation("");
-                setDream("");
-              }}
-            >
-              <Trash className="w-4 h-4" />
-              Borrar sueño
-            </Button>
-          ) : (
-            <Button
-              size="sm"
-              className="rounded-full bg-primary hover:bg-primary/90 transition-colors"
-              onClick={handleInterpret}
-              disabled={isLoading || !dream.trim()}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  Interpretando...
-                </>
-              ) : (
-                <>
-                  <Send className="w-4 h-4" />
-                </>
+
+          {/* footer row */}
+          <div className="flex items-center justify-between px-5 pb-4 pt-1">
+            <AnimatePresence>
+              {dream.length > 0 && !interpretation && (
+                <motion.span
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 4 }}
+                  transition={{ duration: 0.2 }}
+                  className="text-xs text-muted-foreground/40 tabular-nums select-none"
+                >
+                  {dream.length}
+                </motion.span>
               )}
-            </Button>
-          )}
+            </AnimatePresence>
+
+            <div className="ml-auto">
+              <AnimatePresence mode="wait">
+                {interpretation ? (
+                  <motion.button
+                    key="clear"
+                    initial={{ opacity: 0, scale: 0.8, filter: "blur(4px)" }}
+                    animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                    exit={{ opacity: 0, scale: 0.8, filter: "blur(4px)" }}
+                    transition={{ duration: 0.25, ease: "easeOut" }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => { setInterpretation(""); setDream(""); }}
+                    className="flex items-center gap-1.5 rounded-full border border-border px-3.5 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:border-primary/60 transition-colors duration-200 cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    {t("clearDream")}
+                  </motion.button>
+                ) : (
+                  <motion.button
+                    key="send"
+                    initial={{ opacity: 0, scale: 0.8, filter: "blur(4px)" }}
+                    animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                    exit={{ opacity: 0, scale: 0.8, filter: "blur(4px)" }}
+                    transition={{ duration: 0.25, ease: "easeOut" }}
+                    whileHover={canSend ? { scale: 1.08 } : {}}
+                    whileTap={canSend ? { scale: 0.93 } : {}}
+                    onClick={handleInterpret}
+                    disabled={!canSend}
+                    className="relative flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-secondary px-4 py-1.5 text-xs font-medium text-primary-foreground shadow-md transition-opacity duration-200 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer overflow-hidden"
+                  >
+                    <AnimatePresence mode="wait">
+                      {isLoading ? (
+                        <motion.span
+                          key="loading"
+                          initial={{ opacity: 0, x: 8 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: -8 }}
+                          transition={{ duration: 0.2 }}
+                          className="flex items-center gap-1.5"
+                        >
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          {t("interpreting")}
+                        </motion.span>
+                      ) : (
+                        <motion.span
+                          key="send"
+                          initial={{ opacity: 0, x: 8 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: -8 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <Send className="w-3.5 h-3.5" />
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </motion.button>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
         </div>
       </div>
     </div>

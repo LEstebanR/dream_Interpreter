@@ -1,0 +1,18 @@
+{
+  "Metadata": {
+    "description": "Descubre el significado de tus sueños"
+  },
+  "Footer": {
+    "madeWith": "Hecho con",
+    "by": "por"
+  },
+  "Home": {
+    "title": "Interpreta tus sueños",
+    "subtitle": "Describe tu sueño y descubre su significado"
+  },
+  "TextBox": {
+    "placeholder": "Describe tu sueño aquí...",
+    "interpreting": "Interpretando...",
+    "clearDream": "Borrar sueño"
+  }
+}

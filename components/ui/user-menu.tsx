@@ -1,18 +1,16 @@
 "use client";
 
 import { useSession, signOut } from "next-auth/react";
-import { useTranslations } from "next-intl";
-import { useParams } from "next/navigation";
+import { useTranslations, useLocale } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { User, CreditCard, LogOut, ChevronDown } from "lucide-react";
 
 export function UserMenu() {
   const { data: session, status } = useSession();
   const t = useTranslations("Auth");
-  const params = useParams();
-  const locale = (params.locale as string) ?? "es";
+  const locale = useLocale();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -66,9 +64,9 @@ export function UserMenu() {
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full mt-1.5 w-48 rounded-xl border border-border bg-background/95 backdrop-blur-md shadow-lg py-1 z-50">
+        <div className="absolute left-0 top-full mt-1.5 w-48 rounded-xl border border-border bg-background shadow-lg py-1 z-[9999]">
           <Link
-            href={`/${locale}/profile`}
+            href="/profile"
             onClick={() => setOpen(false)}
             className="flex items-center gap-2.5 px-3.5 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-muted transition-colors"
           >
@@ -76,7 +74,7 @@ export function UserMenu() {
             {t("profile")}
           </Link>
           <Link
-            href={`/${locale}/billing`}
+            href="/billing"
             onClick={() => setOpen(false)}
             className="flex items-center gap-2.5 px-3.5 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-muted transition-colors"
           >

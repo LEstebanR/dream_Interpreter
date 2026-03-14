@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
 import Stripe from "stripe";
 
@@ -29,7 +29,7 @@ export async function POST(req: Request) {
 
   let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(
+    event = getStripe().webhooks.constructEvent(
       body,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET!
@@ -106,7 +106,7 @@ export async function POST(req: Request) {
         // No revocar acceso de inmediato — Stripe reintentará
         // Solo revocar si la suscripción ya está en estado past_due/unpaid
         if (subId) {
-          const subscription = await stripe.subscriptions.retrieve(subId);
+          const subscription = await getStripe().subscriptions.retrieve(subId);
           if (subscription.status === "past_due" || subscription.status === "unpaid") {
             await setUserPremium(user.id, false, subId);
           }

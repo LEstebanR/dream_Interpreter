@@ -1,9 +1,9 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useSession } from "next-auth/react";
-import { Loader2, Camera } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { useRouter } from "next/navigation";
 
@@ -21,44 +21,17 @@ export function ProfileForm({
   const t = useTranslations("Profile");
   const router = useRouter();
   const { update } = useSession();
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [name, setName] = useState(user.name ?? "");
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(user.image);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
-  const avatarChanged = avatarPreview !== user.image;
   const hasChanges =
     name !== (user.name ?? "") ||
-    avatarChanged ||
     (newPassword.length > 0 && currentPassword.length > 0);
-
-  function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const src = ev.target?.result as string;
-      const img = new Image();
-      img.onload = () => {
-        const size = Math.min(img.width, img.height, 256);
-        const canvas = document.createElement("canvas");
-        canvas.width = size;
-        canvas.height = size;
-        const ctx = canvas.getContext("2d")!;
-        const sx = (img.width - size) / 2;
-        const sy = (img.height - size) / 2;
-        ctx.drawImage(img, sx, sy, size, size, 0, 0, size, size);
-        setAvatarPreview(canvas.toDataURL("image/jpeg", 0.85));
-      };
-      img.src = src;
-    };
-    reader.readAsDataURL(file);
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -68,7 +41,6 @@ export function ProfileForm({
 
     const body: Record<string, string> = {};
     if (name !== (user.name ?? "")) body.name = name;
-    if (avatarChanged) body.image = avatarPreview ?? "";
     if (newPassword && currentPassword) {
       body.currentPassword = currentPassword;
       body.newPassword = newPassword;
@@ -88,11 +60,8 @@ export function ProfileForm({
         return;
       }
 
-      // Refresh JWT so header reflects new name/avatar immediately
-      await update({
-        name: body.name ?? user.name,
-        picture: body.image ?? user.image,
-      });
+      // Refresh JWT so header reflects new name immediately
+      await update({ name: body.name ?? user.name });
 
       setSuccess(t("saveSuccess"));
       setCurrentPassword("");
@@ -109,15 +78,11 @@ export function ProfileForm({
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
       {/* Avatar */}
       <div className="flex items-center gap-4">
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          className="relative shrink-0 group cursor-pointer"
-        >
-          {avatarPreview ? (
+        <div className="shrink-0">
+          {user.image ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={avatarPreview}
+              src={user.image}
               alt={user.name ?? user.email}
               className="w-14 h-14 rounded-full object-cover"
             />
@@ -126,17 +91,7 @@ export function ProfileForm({
               {initials}
             </span>
           )}
-          <span className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-            <Camera className="w-5 h-5 text-white" />
-          </span>
-        </button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={handleAvatarChange}
-        />
+        </div>
         <div className="flex flex-col gap-1 min-w-0">
           <span className="text-sm font-medium text-foreground truncate">
             {user.name ?? user.email}

@@ -3,9 +3,6 @@ import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
 import Stripe from "stripe";
 
-// Necesario para leer el raw body y verificar la firma de Stripe
-export const config = { api: { bodyParser: false } };
-
 async function getUserByCustomerId(customerId: string) {
   return prisma.user.findFirst({
     where: { stripeCustomerId: customerId },

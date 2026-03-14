@@ -17,6 +17,17 @@
     "interpreting": "Interpreting...",
     "clearDream": "Clear dream"
   },
+  "Billing": {
+    "title": "Your subscription",
+    "subtitle": "Manage your plan and payment methods",
+    "currentPlan": "Current plan",
+    "freePlan": "Free",
+    "upgradeToPremium": "Upgrade to Premium",
+    "manageSubscription": "Manage subscription",
+    "loading": "Loading...",
+    "successMessage": "Payment successful! You now have access to Premium.",
+    "canceledMessage": "Payment was canceled. You can try again whenever you're ready."
+  },
   "Pricing": {
     "title": "Simple, transparent pricing",
     "subtitle": "Start for free and upgrade whenever you're ready.",

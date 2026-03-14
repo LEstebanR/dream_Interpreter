@@ -11,9 +11,7 @@ export function AuthButtons() {
   const params = useParams();
   const locale = (params.locale as string) ?? "es";
 
-  if (status === "loading") return <div className="w-24 h-7" />;
-
-  if (session?.user) {
+  if (status === "authenticated" && session?.user) {
     return (
       <div className="flex items-center gap-3">
         <span className="text-sm text-white/60 hidden sm:block">

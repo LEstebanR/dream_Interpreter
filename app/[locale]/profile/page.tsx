@@ -31,7 +31,6 @@ export default async function ProfilePage({
           </div>
 
           <ProfileForm
-            locale={locale}
             user={{
               name: user.name,
               email: user.email,

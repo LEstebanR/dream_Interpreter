@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 
 const patchSchema = z.object({
   name: z.string().min(1).max(100).optional(),
+  image: z.string().optional(),
   currentPassword: z.string().optional(),
   newPassword: z.string().min(6).optional(),
 });
@@ -22,10 +23,11 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ error: "Invalid data" }, { status: 400 });
   }
 
-  const { name, currentPassword, newPassword } = parsed.data;
+  const { name, image, currentPassword, newPassword } = parsed.data;
   const updates: Record<string, string> = {};
 
   if (name) updates.name = name;
+  if (image !== undefined) updates.image = image;
 
   if (newPassword) {
     if (!currentPassword) {

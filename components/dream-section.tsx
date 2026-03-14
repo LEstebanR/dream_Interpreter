@@ -1,8 +1,46 @@
 "use client";
-import { useState } from "react";
-import { TypeAnimation } from "react-type-animation";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import TextBox from "./text-box";
+
+function WordReveal({ text }: { text: string }) {
+  const words = text.split(" ");
+  const [visibleCount, setVisibleCount] = useState(0);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    setVisibleCount(0);
+    intervalRef.current = setInterval(() => {
+      setVisibleCount((c) => {
+        if (c >= words.length) {
+          clearInterval(intervalRef.current!);
+          return c;
+        }
+        return c + 1;
+      });
+    }, 60);
+    return () => clearInterval(intervalRef.current!);
+  }, [text]);  // eslint-disable-line react-hooks/exhaustive-deps
+
+  return (
+    <span>
+      {words.map((word, i) => (
+        <span
+          key={i}
+          className="inline-block transition-all duration-300"
+          style={{
+            opacity: i < visibleCount ? 1 : 0,
+            filter: i < visibleCount ? "blur(0px)" : "blur(4px)",
+            transform: i < visibleCount ? "translateY(0)" : "translateY(4px)",
+            marginRight: "0.25em",
+          }}
+        >
+          {word}
+        </span>
+      ))}
+    </span>
+  );
+}
 
 export function DreamSection({ subtitle }: { subtitle: string }) {
   const [interpretation, setInterpretation] = useState("");
@@ -26,13 +64,7 @@ export function DreamSection({ subtitle }: { subtitle: string }) {
             >
               <div className="absolute top-0 left-0 w-16 h-16 rounded-tl-2xl bg-gradient-to-br from-primary/10 to-transparent pointer-events-none" />
               <p className="relative text-base md:text-lg text-foreground/80 leading-relaxed text-center">
-                <TypeAnimation
-                  sequence={[interpretation]}
-                  wrapper="span"
-                  speed={80}
-                  cursor={false}
-                  repeat={0}
-                />
+                <WordReveal text={interpretation} />
               </p>
             </motion.div>
           ) : (

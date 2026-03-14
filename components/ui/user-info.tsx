@@ -1,6 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+import Image from "next/image";
 
 export function UserInfo() {
   const { data: session, status } = useSession();
@@ -8,10 +9,22 @@ export function UserInfo() {
   if (status !== "authenticated" || !session?.user) return null;
 
   const name = session.user.name ?? session.user.email ?? "";
+  const image = session.user.image;
 
   return (
-    <span className="text-sm font-medium text-foreground/80 capitalize truncate block">
-      {name}
-    </span>
+    <div className="flex items-center gap-2 min-w-0">
+      {image && (
+        <Image
+          src={image}
+          alt={name}
+          width={24}
+          height={24}
+          className="rounded-full shrink-0"
+        />
+      )}
+      <span className="text-sm font-medium text-foreground/80 capitalize truncate">
+        {name}
+      </span>
+    </div>
   );
 }

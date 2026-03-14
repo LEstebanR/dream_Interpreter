@@ -7,7 +7,7 @@ export default async function Header() {
   const locale = await getLocale();
 
   return (
-    <header className="flex justify-between items-center w-full px-4 py-3 sticky top-0 z-10 backdrop-blur-sm">
+    <header className="flex justify-between items-center w-full px-4 py-3 sticky top-0 z-10 border-b border-white/5 bg-background/80 backdrop-blur-sm">
       <Link href={`/${locale}`} className="text-sm font-medium text-white/70 hover:text-white transition-colors">
         Oniric
       </Link>

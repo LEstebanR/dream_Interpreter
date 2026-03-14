@@ -28,16 +28,16 @@ export function AuthButtons() {
   }
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2">
       <Link
         href={`/${locale}/sign-in`}
-        className="text-sm text-white/60 hover:text-white/90 transition-colors"
+        className="text-sm text-foreground/70 hover:text-foreground transition-colors px-3 py-1.5"
       >
         {t("signInLink")}
       </Link>
       <Link
         href={`/${locale}/sign-up`}
-        className="text-sm bg-white/10 hover:bg-white/15 text-white px-3 py-1.5 rounded-lg transition-colors"
+        className="text-sm border border-border hover:bg-accent text-foreground px-3 py-1.5 rounded-lg transition-colors"
       >
         {t("signUpLink")}
       </Link>

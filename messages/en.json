@@ -8,7 +8,9 @@
   },
   "Home": {
     "title": "Interpret your dreams",
-    "subtitle": "Describe your dream and discover its meaning"
+    "subtitle": "Describe your dream and discover its meaning",
+    "createAccount": "Create free account",
+    "signIn": "I already have an account"
   },
   "TextBox": {
     "placeholder": "Describe your dream here...",

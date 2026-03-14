@@ -8,7 +8,9 @@
   },
   "Home": {
     "title": "Interpreta tus sueños",
-    "subtitle": "Describe tu sueño y descubre su significado"
+    "subtitle": "Describe tu sueño y descubre su significado",
+    "createAccount": "Crear cuenta gratis",
+    "signIn": "Ya tengo cuenta"
   },
   "TextBox": {
     "placeholder": "Describe tu sueño aquí...",

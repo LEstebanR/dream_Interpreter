@@ -8,11 +8,31 @@
   },
   "Home": {
     "title": "Interpret your dreams",
-    "subtitle": "Describe your dream and discover its meaning"
+    "subtitle": "Describe your dream and discover its meaning",
+    "createAccount": "Create free account",
+    "signIn": "I already have an account"
   },
   "TextBox": {
     "placeholder": "Describe your dream here...",
     "interpreting": "Interpreting...",
     "clearDream": "Clear dream"
+  },
+  "Auth": {
+    "signIn": "Sign in",
+    "signUp": "Create account",
+    "signingIn": "Signing in...",
+    "signingUp": "Creating account...",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "or": "or",
+    "continueWithGoogle": "Continue with Google",
+    "invalidCredentials": "Incorrect email or password",
+    "registerError": "Error creating account",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "signOut": "Sign out",
+    "signInLink": "Sign in",
+    "signUpLink": "Create account"
   }
 }

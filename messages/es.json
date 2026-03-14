@@ -28,6 +28,9 @@
     "invalidCredentials": "Email o contraseña incorrectos",
     "registerError": "Error al crear la cuenta",
     "noAccount": "¿No tienes cuenta?",
-    "hasAccount": "¿Ya tienes cuenta?"
+    "hasAccount": "¿Ya tienes cuenta?",
+    "signOut": "Cerrar sesión",
+    "signInLink": "Iniciar sesión",
+    "signUpLink": "Crear cuenta"
   }
 }

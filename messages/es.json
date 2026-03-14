@@ -17,6 +17,31 @@
     "interpreting": "Interpretando...",
     "clearDream": "Borrar sueño"
   },
+  "Pricing": {
+    "title": "Planes simples y transparentes",
+    "subtitle": "Empieza gratis y actualiza cuando quieras acceder a más.",
+    "perMonth": "/ mes",
+    "loading": "Cargando...",
+    "free": {
+      "badge": "Gratis",
+      "description": "Para explorar el significado de tus sueños",
+      "feature1": "3 interpretaciones por día",
+      "feature2": "Modelo de IA básico",
+      "feature3": "Sin necesidad de cuenta",
+      "cta": "Plan actual"
+    },
+    "premium": {
+      "badge": "Popular",
+      "price": "$4.99",
+      "description": "Para quienes quieren profundizar en sus sueños",
+      "feature1": "Interpretaciones ilimitadas",
+      "feature2": "Modelo de IA avanzado (Claude)",
+      "feature3": "Diario de sueños privado",
+      "feature4": "Historial completo",
+      "cta": "Comenzar con Premium",
+      "manage": "Gestionar suscripción"
+    }
+  },
   "Auth": {
     "signIn": "Iniciar sesión",
     "signUp": "Crear cuenta",

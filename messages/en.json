@@ -53,6 +53,22 @@
       "manage": "Manage subscription"
     }
   },
+  "Profile": {
+    "title": "Your profile",
+    "subtitle": "Manage your personal information",
+    "name": "Name",
+    "namePlaceholder": "Your name",
+    "email": "Email",
+    "changePassword": "Change password",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "save": "Save changes",
+    "saving": "Saving...",
+    "saveSuccess": "Changes saved successfully!",
+    "saveError": "Error saving changes",
+    "manageBilling": "Manage subscription",
+    "freePlan": "Free"
+  },
   "Auth": {
     "signIn": "Sign in",
     "signUp": "Create account",

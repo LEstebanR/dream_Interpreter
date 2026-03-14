@@ -53,6 +53,22 @@
       "manage": "Gestionar suscripción"
     }
   },
+  "Profile": {
+    "title": "Tu perfil",
+    "subtitle": "Gestiona tu información personal",
+    "name": "Nombre",
+    "namePlaceholder": "Tu nombre",
+    "email": "Correo electrónico",
+    "changePassword": "Cambiar contraseña",
+    "currentPassword": "Contraseña actual",
+    "newPassword": "Nueva contraseña",
+    "save": "Guardar cambios",
+    "saving": "Guardando...",
+    "saveSuccess": "¡Cambios guardados correctamente!",
+    "saveError": "Error al guardar los cambios",
+    "manageBilling": "Gestionar suscripción",
+    "freePlan": "Gratis"
+  },
   "Auth": {
     "signIn": "Iniciar sesión",
     "signUp": "Crear cuenta",

@@ -1,0 +1,172 @@
+"use client";
+
+import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { Loader2 } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+export function ProfileForm({
+  locale,
+  user,
+}: {
+  locale: string;
+  user: {
+    name: string | null;
+    email: string;
+    image: string | null;
+    isPremium: boolean;
+    hasPassword: boolean;
+  };
+}) {
+  const t = useTranslations("Profile");
+  const router = useRouter();
+
+  const [name, setName] = useState(user.name ?? "");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
+
+  const hasChanges =
+    name !== (user.name ?? "") ||
+    (newPassword.length > 0 && currentPassword.length > 0);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+    setLoading(true);
+
+    const body: Record<string, string> = {};
+    if (name !== (user.name ?? "")) body.name = name;
+    if (newPassword && currentPassword) {
+      body.currentPassword = currentPassword;
+      body.newPassword = newPassword;
+    }
+
+    try {
+      const res = await fetch("/api/user/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error ?? t("saveError"));
+        return;
+      }
+
+      setSuccess(t("saveSuccess"));
+      setCurrentPassword("");
+      setNewPassword("");
+      router.refresh();
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+      {/* Avatar + tier badge */}
+      <div className="flex items-center gap-4">
+        <div className="flex shrink-0 items-center justify-center w-14 h-14 rounded-full bg-primary/20 text-primary text-xl font-semibold uppercase">
+          {(user.name ?? user.email).charAt(0)}
+        </div>
+        <div className="flex flex-col gap-1">
+          <span className="text-sm font-medium text-foreground">
+            {user.name ?? user.email}
+          </span>
+          <span
+            className={`self-start rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+              user.isPremium
+                ? "bg-gradient-to-r from-primary to-secondary text-primary-foreground"
+                : "bg-muted text-muted-foreground border border-border"
+            }`}
+          >
+            {user.isPremium ? "Premium" : t("freePlan")}
+          </span>
+        </div>
+      </div>
+
+      <div className="h-px bg-border" />
+
+      {/* Name */}
+      <div className="flex flex-col gap-1.5">
+        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+          {t("name")}
+        </label>
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder={t("namePlaceholder")}
+          className="w-full rounded-xl border border-border bg-background/90 px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/40 transition-colors"
+        />
+      </div>
+
+      {/* Email (read-only) */}
+      <div className="flex flex-col gap-1.5">
+        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+          {t("email")}
+        </label>
+        <input
+          type="email"
+          value={user.email}
+          disabled
+          className="w-full rounded-xl border border-border bg-muted px-4 py-2.5 text-sm text-muted-foreground cursor-not-allowed"
+        />
+      </div>
+
+      {/* Password change — only for credential accounts */}
+      {user.hasPassword && (
+        <>
+          <div className="h-px bg-border" />
+          <div className="flex flex-col gap-3">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              {t("changePassword")}
+            </p>
+            <input
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              placeholder={t("currentPassword")}
+              className="w-full rounded-xl border border-border bg-background/90 px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/40 transition-colors"
+            />
+            <input
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder={t("newPassword")}
+              className="w-full rounded-xl border border-border bg-background/90 px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/40 transition-colors"
+            />
+          </div>
+        </>
+      )}
+
+      {error && <p className="text-xs text-destructive">{error}</p>}
+      {success && <p className="text-xs text-primary">{success}</p>}
+
+      <div className="flex flex-col gap-3 pt-1">
+        <button
+          type="submit"
+          disabled={loading || !hasChanges}
+          className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-primary to-secondary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-md transition-opacity hover:opacity-90 disabled:opacity-40 cursor-pointer disabled:cursor-default"
+        >
+          {loading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+          {loading ? t("saving") : t("save")}
+        </button>
+
+        <Link
+          href={`/${locale}/billing`}
+          className="w-full text-center rounded-full border border-border px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:border-primary/60 transition-colors"
+        >
+          {t("manageBilling")}
+        </Link>
+      </div>
+    </form>
+  );
+}

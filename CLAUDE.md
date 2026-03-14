@@ -41,15 +41,18 @@ App web de interpretación de sueños con IA. Usuarios anónimos pueden interpre
     /sign-up              # página de registro
     /journal              # diario de sueños (solo premium) — pendiente
     /profile              # pendiente
-    /billing              # pendiente
-    /pricing              # pendiente
+    /billing              # página de suscripción (plan actual + gestionar)
+    /pricing              # página de pricing con tarjetas Free/Premium
   /api
     /interpret            # POST — interpretar sueño (con fallback de modelos)
     /auth
       /[...nextauth]      # handlers NextAuth v5
       /register           # POST — registro con email/password
     /journal              # CRUD entradas del diario — pendiente
-    /stripe               # pendiente
+    /stripe
+      /checkout           # POST — crear Checkout Session
+      /portal             # POST — crear Customer Portal Session
+      /webhook            # POST — sincronizar isPremium desde eventos Stripe
 /components
   dream-section.tsx       # Client island — estado interpretación + TextBox
   text-box.tsx            # Client island — input + llamada a API
@@ -58,6 +61,10 @@ App web de interpretación de sueños con IA. Usuarios anónimos pueden interpre
     sign-up-form.tsx      # Client island — formulario registro
   /providers
     session-provider.tsx  # Client wrapper de SessionProvider (next-auth/react)
+  /billing
+    manage-subscription-button.tsx  # Client island — abre Customer Portal
+  /pricing
+    pricing-cards.tsx     # Client island — tarjetas Free/Premium con CTA
   /ui
     header.tsx            # Server Component (fixed, con UserInfo + AuthButtons)
     footer.tsx            # Server Component
@@ -76,6 +83,7 @@ App web de interpretación de sueños con IA. Usuarios anónimos pueden interpre
 /lib
   auth.ts                 # NextAuth v5 config — exporta { handlers, signIn, signOut, auth }
   prisma.ts               # Singleton PrismaClient
+  stripe.ts               # Singleton Stripe (misma pauta que prisma.ts)
   utils.ts                # cn(), etc.
 /prisma
   schema.prisma           # modelos: User, Account, Session, VerificationToken, DreamEntry
@@ -129,8 +137,9 @@ GOOGLE_CLIENT_SECRET=
 
 # Stripe
 STRIPE_SECRET_KEY=
-STRIPE_PUBLISHABLE_KEY=
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
 STRIPE_WEBHOOK_SECRET=
+NEXT_PUBLIC_STRIPE_PRICE_ID=         # Price ID del plan Premium (price_xxx, no prod_xxx)
 
 # Rate limiting
 UPSTASH_REDIS_REST_URL=
@@ -248,10 +257,45 @@ No usar typewriter carácter por carácter (dificulta la lectura). Usar reveal p
 setInterval(() => setVisibleCount(c => c + 1), 60)
 ```
 
-### Webhook de Stripe — siempre verificar firma
+### Stripe — singleton igual que Prisma
 ```ts
-const event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
+// lib/stripe.ts
+const globalForStripe = globalThis as unknown as { stripe: Stripe };
+export const stripe = globalForStripe.stripe ?? new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2026-02-25.clover",
+});
+if (process.env.NODE_ENV !== "production") globalForStripe.stripe = stripe;
 ```
+
+### Webhook de Stripe — leer raw body con req.text()
+En Next.js App Router el webhook lee el body con `req.text()` (no hace falta `bodyParser: false`).
+`export const config = { api: { bodyParser: false } }` es obsoleto en App Router y genera warning:
+```ts
+// ✅ Correcto en App Router
+const body = await req.text();
+const event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!);
+```
+
+### Stripe — Checkout Session: usar origin del request para las URLs de redirect
+No usar `NEXT_PUBLIC_APP_URL` directamente — en local apunta a producción y rompe el redirect:
+```ts
+const origin = req.headers.get("origin") ?? req.headers.get("referer")?.replace(/\/$/, "");
+const baseUrl = origin ?? process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+```
+
+### Stripe — Price ID vs Product ID
+`NEXT_PUBLIC_STRIPE_PRICE_ID` debe ser el ID del **precio** (`price_xxx`), no del producto (`prod_xxx`).
+Se obtiene en Stripe Dashboard → Products → clic en el producto → sección Pricing.
+
+### Stripe — webhook no llega en local si el CLI no está escuchando
+Durante desarrollo, los eventos de Stripe solo llegan a localhost si `stripe listen --forward-to` está activo.
+Para reenviar un evento que se perdió: `stripe events resend <evt_xxx>` con el listener activo.
+El `STRIPE_WEBHOOK_SECRET` del listener local (`whsec_...`) es diferente al de producción — actualizarlo en `.env.local` cada vez que se inicia un nuevo listener.
+
+### JWT stale después de actualizar isPremium
+El JWT se genera al hacer login y no se refresca automáticamente cuando `isPremium` cambia en BD.
+El usuario debe cerrar sesión y volver a entrar para que `session.user.isPremium` refleje el nuevo valor.
+Pendiente: implementar refresh del JWT en el callback de `session` leyendo la BD.
 
 ---
 
@@ -270,3 +314,6 @@ const event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHO
 - No usar `NEXTAUTH_SECRET` / `NEXTAUTH_URL` — NextAuth v5 usa `AUTH_SECRET`; `AUTH_URL` solo necesaria fuera de Vercel
 - No usar `grid min-h-dvh` en el body layout — causa layout shift en Chrome al cambiar locale; usar `flex flex-col min-h-screen`
 - No usar `sticky` en el header si el body es grid — usar `fixed` con `pt-12` en body como compensación
+- No usar `export const config = { api: { bodyParser: false } }` en App Router — obsoleto, genera warning; en App Router el raw body se lee con `req.text()` directamente
+- No usar el Product ID (`prod_xxx`) como `NEXT_PUBLIC_STRIPE_PRICE_ID` — debe ser el Price ID (`price_xxx`)
+- No usar `NEXT_PUBLIC_APP_URL` para las URLs de redirect en Stripe Checkout — usar el `origin` del request para que funcione igual en local y producción

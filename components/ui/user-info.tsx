@@ -10,7 +10,7 @@ export function UserInfo() {
   const name = session.user.name ?? session.user.email ?? "";
 
   return (
-    <span className="text-sm font-medium text-foreground/80 capitalize">
+    <span className="text-sm font-medium text-foreground/80 capitalize truncate block">
       {name}
     </span>
   );

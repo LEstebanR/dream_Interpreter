@@ -8,6 +8,7 @@ import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
+import { AuthSessionProvider } from "@/components/providers/session-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -52,12 +53,14 @@ export default async function LocaleLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased grid min-h-dvh grid-rows-[auto_1fr_auto]`}
       >
-        <NextIntlClientProvider messages={messages}>
-          <Header />
-          {children}
-          <Analytics />
-          <Footer />
-        </NextIntlClientProvider>
+        <AuthSessionProvider>
+          <NextIntlClientProvider messages={messages}>
+            <Header />
+            {children}
+            <Analytics />
+            <Footer />
+          </NextIntlClientProvider>
+        </AuthSessionProvider>
       </body>
     </html>
   );

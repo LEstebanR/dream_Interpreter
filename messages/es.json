@@ -14,5 +14,20 @@
     "placeholder": "Describe tu sueño aquí...",
     "interpreting": "Interpretando...",
     "clearDream": "Borrar sueño"
+  },
+  "Auth": {
+    "signIn": "Iniciar sesión",
+    "signUp": "Crear cuenta",
+    "signingIn": "Iniciando sesión...",
+    "signingUp": "Creando cuenta...",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "name": "Nombre",
+    "or": "o",
+    "continueWithGoogle": "Continuar con Google",
+    "invalidCredentials": "Email o contraseña incorrectos",
+    "registerError": "Error al crear la cuenta",
+    "noAccount": "¿No tienes cuenta?",
+    "hasAccount": "¿Ya tienes cuenta?"
   }
 }

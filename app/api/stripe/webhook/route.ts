@@ -98,12 +98,16 @@ export async function POST(req: Request) {
         const user = await getUserByCustomerId(customerId);
         if (!user) break;
 
+        // En Stripe API v2026 el subscription está en invoice.parent.subscription_details
+        const subDetails = invoice.parent?.subscription_details;
+        const subId = subDetails
+          ? (typeof subDetails.subscription === "string"
+              ? subDetails.subscription
+              : subDetails.subscription?.id)
+          : undefined;
+
         // No revocar acceso de inmediato — Stripe reintentará
         // Solo revocar si la suscripción ya está en estado past_due/unpaid
-        const subId = typeof invoice.subscription === "string"
-          ? invoice.subscription
-          : invoice.subscription?.id;
-
         if (subId) {
           const subscription = await stripe.subscriptions.retrieve(subId);
           if (subscription.status === "past_due" || subscription.status === "unpaid") {

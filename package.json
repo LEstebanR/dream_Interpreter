@@ -15,6 +15,7 @@
     "@radix-ui/react-slot": "1.2.2",
     "@radix-ui/react-tabs": "1.1.11",
     "@radix-ui/react-tooltip": "^1.2.7",
+    "@stripe/stripe-js": "^8.9.0",
     "@vercel/analytics": "^1.5.0",
     "ai": "4.3.16",
     "bcryptjs": "^3.0.3",
@@ -28,6 +29,7 @@
     "prisma": "^5",
     "react": "19.0.0",
     "react-dom": "19.0.0",
+    "stripe": "^20.4.1",
     "tailwind-merge": "3.3.0",
     "vercel": "^50.32.5",
     "zod": "^4.3.6"

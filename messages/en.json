@@ -17,6 +17,42 @@
     "interpreting": "Interpreting...",
     "clearDream": "Clear dream"
   },
+  "Billing": {
+    "title": "Your subscription",
+    "subtitle": "Manage your plan and payment methods",
+    "currentPlan": "Current plan",
+    "freePlan": "Free",
+    "upgradeToPremium": "Upgrade to Premium",
+    "manageSubscription": "Manage subscription",
+    "loading": "Loading...",
+    "successMessage": "Payment successful! You now have access to Premium.",
+    "canceledMessage": "Payment was canceled. You can try again whenever you're ready."
+  },
+  "Pricing": {
+    "title": "Simple, transparent pricing",
+    "subtitle": "Start for free and upgrade whenever you're ready.",
+    "perMonth": "/ month",
+    "loading": "Loading...",
+    "free": {
+      "badge": "Free",
+      "description": "To explore the meaning of your dreams",
+      "feature1": "3 interpretations per day",
+      "feature2": "Basic AI model",
+      "feature3": "No account needed",
+      "cta": "Current plan"
+    },
+    "premium": {
+      "badge": "Popular",
+      "price": "$4.99",
+      "description": "For those who want to dive deeper into their dreams",
+      "feature1": "Unlimited interpretations",
+      "feature2": "Advanced AI model (Claude)",
+      "feature3": "Private dream journal",
+      "feature4": "Full history",
+      "cta": "Get Premium",
+      "manage": "Manage subscription"
+    }
+  },
   "Auth": {
     "signIn": "Sign in",
     "signUp": "Create account",

@@ -14,12 +14,12 @@ export function AuthButtons() {
   if (status === "authenticated" && session?.user) {
     return (
       <div className="flex items-center gap-3">
-        <span className="text-sm text-white/60 hidden sm:block">
+        <span className="text-xs text-muted-foreground hidden sm:block">
           {session.user.name ?? session.user.email}
         </span>
         <button
           onClick={() => signOut({ callbackUrl: `/${locale}` })}
-          className="text-sm text-white/50 hover:text-white/80 transition-colors"
+          className="flex items-center rounded-full border border-border px-3.5 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:border-primary/60 transition-colors duration-200 cursor-pointer"
         >
           {t("signOut")}
         </button>
@@ -31,13 +31,13 @@ export function AuthButtons() {
     <div className="flex items-center gap-2">
       <Link
         href={`/${locale}/sign-in`}
-        className="text-sm text-foreground/70 hover:text-foreground transition-colors px-3 py-1.5"
+        className="text-xs text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5"
       >
         {t("signInLink")}
       </Link>
       <Link
         href={`/${locale}/sign-up`}
-        className="text-sm border border-border hover:bg-accent text-foreground px-3 py-1.5 rounded-lg transition-colors"
+        className="flex items-center rounded-full bg-gradient-to-r from-primary to-secondary px-4 py-1.5 text-xs font-medium text-primary-foreground shadow-md transition-opacity hover:opacity-90"
       >
         {t("signUpLink")}
       </Link>

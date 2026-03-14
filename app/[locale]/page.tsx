@@ -49,13 +49,13 @@ export default async function Home({
             >
               <Link
                 href={`/${locale}/sign-up`}
-                className="text-sm border border-border hover:bg-accent text-foreground px-4 py-2 rounded-lg transition-colors"
+                className="flex items-center rounded-full bg-gradient-to-r from-primary to-secondary px-4 py-1.5 text-xs font-medium text-primary-foreground shadow-md transition-opacity hover:opacity-90"
               >
                 {t("createAccount")}
               </Link>
               <Link
                 href={`/${locale}/sign-in`}
-                className="text-sm text-foreground/50 hover:text-foreground transition-colors"
+                className="flex items-center rounded-full border border-border px-3.5 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:border-primary/60 transition-colors duration-200"
               >
                 {t("signIn")}
               </Link>

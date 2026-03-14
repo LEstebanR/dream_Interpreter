@@ -15,13 +15,13 @@ App web de interpretación de sueños con IA. Usuarios anónimos pueden interpre
 
 | Capa | Tecnología |
 |------|------------|
-| Framework | Next.js 15 (App Router) + TypeScript |
-| UI | React 19 + TailwindCSS 4 + shadcn/ui + Radix UI |
+| Framework | Next.js 16 (App Router) + TypeScript |
+| UI | React 19 + TailwindCSS 4 + shadcn/ui + Radix UI + Framer Motion |
 | Base de datos | Prisma ORM + PostgreSQL (Neon serverless) |
 | Auth | NextAuth v5 (Auth.js) + Prisma adapter |
 | Pagos | Stripe (suscripciones recurrentes) |
-| IA | OpenRouter API (Vercel AI SDK) |
-| i18n | next-intl (EN / ES) |
+| IA | OpenRouter API (fetch directo, sin Vercel AI SDK) |
+| i18n | next-intl v4 (EN / ES) |
 | Deploy | Vercel |
 | Analytics | Vercel Analytics |
 | Rate limiting | Upstash Redis (para usuarios free/anónimos) |
@@ -32,36 +32,41 @@ App web de interpretación de sueños con IA. Usuarios anónimos pueden interpre
 
 ```
 /app
+  layout.tsx              # root layout mínimo (pass-through)
+  page.tsx                # redirect al locale por defecto
   /[locale]               # routing de i18n (next-intl)
-    layout.tsx
-    page.tsx              # pantalla principal de interpretación
-    /journal              # diario de sueños (solo premium)
-    /sign-in
-    /sign-up
-    /profile
-    /billing
-    /pricing
+    layout.tsx            # Server Component — fonts, providers, metadata
+    page.tsx              # Server Component — título, ícono, <DreamSection />
+    /journal              # diario de sueños (solo premium) — pendiente
+    /sign-in              # pendiente
+    /sign-up              # pendiente
+    /profile              # pendiente
+    /billing              # pendiente
+    /pricing              # pendiente
   /api
-    /interpret            # POST — interpretar sueño
-    /journal              # CRUD entradas del diario
-    /stripe
-      /checkout           # crear Checkout Session
-      /portal             # Customer Portal Session
-      /webhook            # webhook de Stripe
-    /auth/[...nextauth]   # NextAuth handler
+    /interpret            # POST — interpretar sueño (con fallback de modelos)
+    /journal              # CRUD entradas del diario — pendiente
+    /stripe               # pendiente
+    /auth/[...nextauth]   # pendiente
 /components
-  /ui                     # shadcn/ui components
-/lib
-  prisma.ts               # Prisma client singleton
-  auth.ts                 # NextAuth config
-  stripe.ts               # Stripe client
-  utils.ts                # cn(), etc.
+  dream-section.tsx       # Client island — estado interpretación + TextBox
+  text-box.tsx            # Client island — input + llamada a API
+  /ui
+    header.tsx            # Server Component
+    footer.tsx            # Server Component
+    locale-switcher.tsx   # Client island — toggle EN/ES con Framer Motion
+    animated-heart.tsx    # Client island — corazón palpitante
+    # shadcn/ui components...
+/i18n
+  routing.ts              # defineRouting — locales: ['es', 'en']
+  navigation.ts           # createNavigation (Link, useRouter, usePathname)
+  request.ts              # getRequestConfig — carga mensajes por locale
 /messages
   en.json                 # textos en inglés
   es.json                 # textos en español
-/prisma
-  schema.prisma
-  migrations/
+/lib
+  utils.ts                # cn(), etc.
+middleware.ts             # next-intl locale routing
 ```
 
 ---
@@ -154,6 +159,40 @@ const model = session?.user?.isPremium
   : 'nvidia/nemotron-3-nano-30b-a3b:free'
 ```
 
+### Fallback de modelos OpenRouter
+Los modelos gratuitos se dan de baja sin previo aviso. Siempre usar un array de fallback:
+```ts
+const FREE_MODELS = [
+  'nvidia/nemotron-3-nano-30b-a3b:free',
+  'stepfun/step-3.5-flash:free',
+  'arcee-ai/trinity-large-preview:free',
+];
+// Reintentar recursivamente solo en 404; otros errores lanzar directo
+```
+
+### SSR — Server Components con Client Islands
+Mantener la mayor parte del árbol como Server Components. Solo marcar `"use client"` en el componente más pequeño posible:
+- `header.tsx` → Server Component que importa `<LocaleSwitcher />` (client)
+- `footer.tsx` → Server Component que importa `<AnimatedHeart />` (client)
+- `page.tsx` → Server Component que importa `<DreamSection />` (client)
+
+### next-intl sin plugin (workaround @swc/core)
+El plugin `createNextIntlPlugin` falla en bun porque el `@swc/core` anidado no tiene binarios nativos. Usar alias manual en `next.config.ts`:
+```ts
+turbopack: { resolveAlias: { 'next-intl/config': './i18n/request.ts' } },
+webpack(config) {
+  config.resolve.alias['next-intl/config'] = path.resolve('./i18n/request.ts');
+  return config;
+},
+```
+
+### Animaciones de texto generado por IA
+No usar typewriter carácter por carácter (dificulta la lectura). Usar reveal palabra por palabra con CSS transitions:
+```tsx
+// 60ms por palabra, fade + blur + translateY en cada span
+setInterval(() => setVisibleCount(c => c + 1), 60)
+```
+
 ### Webhook de Stripe — siempre verificar firma
 ```ts
 const event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
@@ -169,3 +208,6 @@ const event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHO
 - No exponer el `STRIPE_SECRET_KEY` al cliente
 - No usar `useEffect` para fetching — preferir Server Components o React Query
 - No mezclar lógica de negocio dentro de componentes UI
+- No usar `react-type-animation` — da mala UX para textos largos (carácter por carácter obliga al ojo a seguir el cursor); usar `WordReveal` propio
+- No usar `createNextIntlPlugin` — falla con bun por binarios nativos de `@swc/core`; usar alias manual en `next.config.ts`
+- No asumir que un modelo gratuito de OpenRouter sigue disponible — siempre definir fallbacks

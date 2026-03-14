@@ -85,6 +85,8 @@
     "hasAccount": "Already have an account?",
     "signOut": "Sign out",
     "signInLink": "Sign in",
-    "signUpLink": "Create account"
+    "signUpLink": "Create account",
+    "profile": "My profile",
+    "billing": "Subscription"
   }
 }

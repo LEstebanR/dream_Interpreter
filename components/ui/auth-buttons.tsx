@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -14,21 +14,12 @@ export function AuthButtons({
   signUpLabel?: string;
   signInLabel?: string;
 } = {}) {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const t = useTranslations("Auth");
   const params = useParams();
   const locale = (params.locale as string) ?? "es";
 
-  if (status === "authenticated" && session?.user) {
-    return (
-      <button
-        onClick={() => signOut({ callbackUrl: `/${locale}` })}
-        className="flex items-center rounded-full border border-border px-3.5 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:border-primary/60 transition-colors duration-200 cursor-pointer"
-      >
-        {t("signOut")}
-      </button>
-    );
-  }
+  if (status === "authenticated") return null;
 
   if (!showGuestLinks) return null;
 

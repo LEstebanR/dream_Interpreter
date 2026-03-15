@@ -75,7 +75,7 @@ async function callPremiumModel(
 
   if (!response.ok) {
     const errorBody = await response.text();
-    if (response.status === 404 || response.status === 429) {
+    if (response.status === 404 || response.status === 429 || response.status === 402) {
       console.warn(`Premium model ${model} unavailable (${response.status}), trying next...`);
       return callPremiumModel(prompt, reqHeaders, modelIndex + 1);
     }

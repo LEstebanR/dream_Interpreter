@@ -35,25 +35,41 @@ App web de interpretación de sueños con IA. Usuarios anónimos pueden interpre
   layout.tsx              # root layout mínimo (pass-through)
   page.tsx                # redirect al locale por defecto
   /[locale]               # routing de i18n (next-intl)
-    layout.tsx            # Server Component — fonts, providers, metadata
+    layout.tsx            # Server Component — fonts, providers, metadata, AuthSessionProvider
     page.tsx              # Server Component — título, ícono, <DreamSection />
+    /sign-in              # página de login
+    /sign-up              # página de registro
     /journal              # diario de sueños (solo premium) — pendiente
-    /sign-in              # pendiente
-    /sign-up              # pendiente
     /profile              # pendiente
-    /billing              # pendiente
-    /pricing              # pendiente
+    /billing              # página de suscripción (plan actual + gestionar)
+    /pricing              # página de pricing con tarjetas Free/Premium
   /api
     /interpret            # POST — interpretar sueño (con fallback de modelos)
+    /auth
+      /[...nextauth]      # handlers NextAuth v5
+      /register           # POST — registro con email/password
     /journal              # CRUD entradas del diario — pendiente
-    /stripe               # pendiente
-    /auth/[...nextauth]   # pendiente
+    /stripe
+      /checkout           # POST — crear Checkout Session
+      /portal             # POST — crear Customer Portal Session
+      /webhook            # POST — sincronizar isPremium desde eventos Stripe
 /components
   dream-section.tsx       # Client island — estado interpretación + TextBox
   text-box.tsx            # Client island — input + llamada a API
+  /auth
+    sign-in-form.tsx      # Client island — formulario login + Google OAuth
+    sign-up-form.tsx      # Client island — formulario registro
+  /providers
+    session-provider.tsx  # Client wrapper de SessionProvider (next-auth/react)
+  /billing
+    manage-subscription-button.tsx  # Client island — abre Customer Portal
+  /pricing
+    pricing-cards.tsx     # Client island — tarjetas Free/Premium con CTA
   /ui
-    header.tsx            # Server Component
+    header.tsx            # Server Component (fixed, con UserInfo + AuthButtons)
     footer.tsx            # Server Component
+    auth-buttons.tsx      # Client island — sign-in/sign-up/sign-out
+    user-info.tsx         # Client island — avatar + nombre cuando hay sesión
     locale-switcher.tsx   # Client island — toggle EN/ES con Framer Motion
     animated-heart.tsx    # Client island — corazón palpitante
     # shadcn/ui components...
@@ -65,7 +81,14 @@ App web de interpretación de sueños con IA. Usuarios anónimos pueden interpre
   en.json                 # textos en inglés
   es.json                 # textos en español
 /lib
+  auth.ts                 # NextAuth v5 config — exporta { handlers, signIn, signOut, auth }
+  prisma.ts               # Singleton PrismaClient
+  stripe.ts               # Singleton Stripe (misma pauta que prisma.ts)
   utils.ts                # cn(), etc.
+/prisma
+  schema.prisma           # modelos: User, Account, Session, VerificationToken, DreamEntry
+/types
+  next-auth.d.ts          # extensiones de tipos: session.user.id, session.user.isPremium
 middleware.ts             # next-intl locale routing
 ```
 
@@ -97,20 +120,29 @@ La selección de modelo ocurre en `/api/interpret/route.ts` leyendo `session.use
 ## Variables de entorno
 
 ```env
-# Existentes
+# IA
 OPENROUTER_API_KEY=
 NEXT_PUBLIC_APP_URL=
 
-# Nuevas (MVP)
+# Base de datos
 DATABASE_URL=                    # PostgreSQL (Neon)
-NEXTAUTH_SECRET=
-NEXTAUTH_URL=
+
+# Auth (NextAuth v5 usa AUTH_SECRET, no NEXTAUTH_SECRET)
+AUTH_SECRET=                     # openssl rand -base64 32
+# AUTH_URL solo necesaria fuera de Vercel; en Vercel se auto-detecta
+
+# Google OAuth
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
+
+# Stripe
 STRIPE_SECRET_KEY=
-STRIPE_PUBLISHABLE_KEY=
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
 STRIPE_WEBHOOK_SECRET=
-UPSTASH_REDIS_REST_URL=          # rate limiting
+NEXT_PUBLIC_STRIPE_PRICE_ID=         # Price ID del plan Premium (price_xxx, no prod_xxx)
+
+# Rate limiting
+UPSTASH_REDIS_REST_URL=
 UPSTASH_REDIS_REST_TOKEN=
 ```
 
@@ -134,7 +166,7 @@ Nunca usar `npm`, `yarn` o `pnpm`.
 
 - **Componentes**: PascalCase, un componente por archivo
 - **API routes**: siempre validar con `zod` antes de procesar
-- **Auth guard**: usar `getServerSession()` en server components / API routes para verificar premium
+- **Auth guard**: usar `auth()` de `@/lib/auth` en Server Components/API routes (NextAuth v5). En Client Components usar `useSession()` de `next-auth/react`
 - **i18n**: nunca hardcodear texto visible al usuario — usar `useTranslations()` o `getTranslations()`
 - **Estilos**: TailwindCSS inline, no CSS modules. Usar `cn()` de `lib/utils.ts` para clases condicionales
 - **Prisma**: importar siempre desde `@/lib/prisma` (singleton), nunca instanciar `new PrismaClient()` directo
@@ -146,7 +178,8 @@ Nunca usar `npm`, `yarn` o `pnpm`.
 
 ### Proteger ruta premium (API)
 ```ts
-const session = await getServerSession(authOptions)
+// NextAuth v5: usar auth() directamente, no getServerSession(authOptions)
+const session = await auth()
 if (!session?.user?.isPremium) {
   return NextResponse.json({ error: 'Premium required' }, { status: 403 })
 }
@@ -172,9 +205,40 @@ const FREE_MODELS = [
 
 ### SSR — Server Components con Client Islands
 Mantener la mayor parte del árbol como Server Components. Solo marcar `"use client"` en el componente más pequeño posible:
-- `header.tsx` → Server Component que importa `<LocaleSwitcher />` (client)
+- `header.tsx` → Server Component que importa `<UserInfo />`, `<AuthButtons />`, `<LocaleSwitcher />` (todos client)
 - `footer.tsx` → Server Component que importa `<AnimatedHeart />` (client)
 - `page.tsx` → Server Component que importa `<DreamSection />` (client)
+
+### Layout body — estructura correcta
+```tsx
+// Usar flex + min-h-screen + pt-12 (NO grid + min-h-dvh que causa layout shift en Chrome)
+<body className="flex flex-col min-h-screen pt-12">
+  <AuthSessionProvider>
+    <NextIntlClientProvider messages={messages}>
+      <Header />  {/* position: fixed, top-0, left-0, right-0, h-12 */}
+      <main className="flex flex-1 flex-col">{children}</main>
+      <Footer />
+    </NextIntlClientProvider>
+  </AuthSessionProvider>
+</body>
+```
+
+### Header fijo — por qué `fixed` y no `sticky`
+`sticky` dentro de un grid con `min-h-dvh` causa layout shift en Chrome al hacer soft navigation (ej. cambio de locale con Framer Motion). Usar `position: fixed` + `pt-12` en body como compensación. `min-h-dvh` cambia dinámicamente en Chrome; usar `min-h-screen` (100vh) es más estable.
+
+### Google OAuth — imágenes de avatar
+Agregar `lh3.googleusercontent.com` a `images.remotePatterns` en `next.config.ts`:
+```ts
+images: {
+  remotePatterns: [{ protocol: "https", hostname: "lh3.googleusercontent.com" }],
+},
+```
+
+### Prisma en Vercel — siempre generar el cliente
+Vercel cachea `node_modules`, por lo que el Prisma Client puede quedar desactualizado. Agregar al build script:
+```json
+"build": "prisma generate && next build"
+```
 
 ### next-intl sin plugin (workaround @swc/core)
 El plugin `createNextIntlPlugin` falla en bun porque el `@swc/core` anidado no tiene binarios nativos. Usar alias manual en `next.config.ts`:
@@ -193,10 +257,45 @@ No usar typewriter carácter por carácter (dificulta la lectura). Usar reveal p
 setInterval(() => setVisibleCount(c => c + 1), 60)
 ```
 
-### Webhook de Stripe — siempre verificar firma
+### Stripe — singleton igual que Prisma
 ```ts
-const event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
+// lib/stripe.ts
+const globalForStripe = globalThis as unknown as { stripe: Stripe };
+export const stripe = globalForStripe.stripe ?? new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2026-02-25.clover",
+});
+if (process.env.NODE_ENV !== "production") globalForStripe.stripe = stripe;
 ```
+
+### Webhook de Stripe — leer raw body con req.text()
+En Next.js App Router el webhook lee el body con `req.text()` (no hace falta `bodyParser: false`).
+`export const config = { api: { bodyParser: false } }` es obsoleto en App Router y genera warning:
+```ts
+// ✅ Correcto en App Router
+const body = await req.text();
+const event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!);
+```
+
+### Stripe — Checkout Session: usar origin del request para las URLs de redirect
+No usar `NEXT_PUBLIC_APP_URL` directamente — en local apunta a producción y rompe el redirect:
+```ts
+const origin = req.headers.get("origin") ?? req.headers.get("referer")?.replace(/\/$/, "");
+const baseUrl = origin ?? process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+```
+
+### Stripe — Price ID vs Product ID
+`NEXT_PUBLIC_STRIPE_PRICE_ID` debe ser el ID del **precio** (`price_xxx`), no del producto (`prod_xxx`).
+Se obtiene en Stripe Dashboard → Products → clic en el producto → sección Pricing.
+
+### Stripe — webhook no llega en local si el CLI no está escuchando
+Durante desarrollo, los eventos de Stripe solo llegan a localhost si `stripe listen --forward-to` está activo.
+Para reenviar un evento que se perdió: `stripe events resend <evt_xxx>` con el listener activo.
+El `STRIPE_WEBHOOK_SECRET` del listener local (`whsec_...`) es diferente al de producción — actualizarlo en `.env.local` cada vez que se inicia un nuevo listener.
+
+### JWT stale después de actualizar isPremium
+El JWT se genera al hacer login y no se refresca automáticamente cuando `isPremium` cambia en BD.
+El usuario debe cerrar sesión y volver a entrar para que `session.user.isPremium` refleje el nuevo valor.
+Pendiente: implementar refresh del JWT en el callback de `session` leyendo la BD.
 
 ---
 
@@ -211,3 +310,10 @@ const event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHO
 - No usar `react-type-animation` — da mala UX para textos largos (carácter por carácter obliga al ojo a seguir el cursor); usar `WordReveal` propio
 - No usar `createNextIntlPlugin` — falla con bun por binarios nativos de `@swc/core`; usar alias manual en `next.config.ts`
 - No asumir que un modelo gratuito de OpenRouter sigue disponible — siempre definir fallbacks
+- No usar `getServerSession(authOptions)` — es la API de NextAuth v4; en v5 usar `auth()` de `@/lib/auth`
+- No usar `NEXTAUTH_SECRET` / `NEXTAUTH_URL` — NextAuth v5 usa `AUTH_SECRET`; `AUTH_URL` solo necesaria fuera de Vercel
+- No usar `grid min-h-dvh` en el body layout — causa layout shift en Chrome al cambiar locale; usar `flex flex-col min-h-screen`
+- No usar `sticky` en el header si el body es grid — usar `fixed` con `pt-12` en body como compensación
+- No usar `export const config = { api: { bodyParser: false } }` en App Router — obsoleto, genera warning; en App Router el raw body se lee con `req.text()` directamente
+- No usar el Product ID (`prod_xxx`) como `NEXT_PUBLIC_STRIPE_PRICE_ID` — debe ser el Price ID (`price_xxx`)
+- No usar `NEXT_PUBLIC_APP_URL` para las URLs de redirect en Stripe Checkout — usar el `origin` del request para que funcione igual en local y producción

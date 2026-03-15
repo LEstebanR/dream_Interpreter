@@ -1,94 +1,134 @@
-# Dream Interpreter 🌙
+# Oniric — Dream Interpreter
 
-Una aplicación web que interpreta tus sueños usando inteligencia artificial con enfoque psicológico.
+App web de interpretación de sueños con IA. Usuarios anónimos pueden interpretar sueños gratis; usuarios premium tienen acceso al diario de sueños, modelo IA superior e interpretaciones ilimitadas.
 
-## Configuración Inicial
+## Stack
 
-### 1. Variables de Entorno
+- **Framework:** Next.js 16 (App Router) + TypeScript
+- **UI:** React 19 + TailwindCSS 4 + shadcn/ui + Framer Motion
+- **Base de datos:** Prisma ORM + PostgreSQL (Neon serverless)
+- **Auth:** NextAuth v5 (Auth.js) + Prisma adapter
+- **Pagos:** Stripe (suscripciones recurrentes)
+- **IA:** OpenRouter API
+- **i18n:** next-intl v4 (EN / ES)
+- **Deploy:** Vercel
 
-Crea un archivo `.env.local` en la raíz del proyecto con:
+---
 
-```env
-# API Key de OpenRouter (obtener en https://openrouter.ai/)
-OPENROUTER_API_KEY=tu_api_key_aqui
+## Setup local
 
-# URL de la aplicación (para desarrollo local)
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-```
-
-### 2. Obtener API Key
-
-1. Ve a [OpenRouter.ai](https://openrouter.ai/)
-2. Crea una cuenta gratuita
-3. Genera tu API key
-4. Cópiala en el archivo `.env.local`
-
-### 3. Instalar dependencias
+### 1. Clonar el repositorio
 
 ```bash
-npm install
-# o
-yarn install
-# o
-pnpm install
-# o
+git clone <repo-url>
+cd dream_Interpreter
+```
+
+### 2. Instalar dependencias
+
+Usar siempre **bun**:
+
+```bash
 bun install
 ```
 
-### 4. Ejecutar el servidor de desarrollo
+### 3. Configurar variables de entorno
 
 ```bash
-npm run dev
-# o
-yarn dev
-# o
-pnpm dev
-# o
-bun dev
+cp .env.example .env.local
 ```
 
-Abre [http://localhost:3000](http://localhost:3000) para ver la aplicación.
+Editar `.env.local` con los valores correspondientes (ver sección de Variables de entorno abajo).
 
-## Solución de Problemas
+### 4. Configurar base de datos
 
-### "API key no configurada"
+```bash
+bunx prisma generate
+bunx prisma db push
+```
 
-- Verifica que `OPENROUTER_API_KEY` esté en tu archivo `.env.local`
-- Asegúrate de que la API key sea válida
+### 5. Ejecutar en desarrollo
 
-### "URL de la aplicación no configurada"
+```bash
+bun run dev
+```
 
-- Verifica que `NEXT_PUBLIC_APP_URL` esté en tu archivo `.env.local`
-- Para desarrollo local usa: `http://localhost:3000`
+La app estará disponible en `http://localhost:3000`.
 
-### "API key inválida"
+---
 
-- Verifica que tu API key de OpenRouter sea correcta
-- Revisa que tengas créditos disponibles en tu cuenta
+## Variables de entorno
 
-### "Error de conexión"
+### OpenRouter (IA)
 
-- Verifica tu conexión a internet
-- Asegúrate de que las variables de entorno estén configuradas correctamente
+| Variable | Descripción | Dónde obtenerla |
+|----------|-------------|-----------------|
+| `OPENROUTER_API_KEY` | API key para los modelos de IA | [openrouter.ai/keys](https://openrouter.ai/keys) |
 
-## Características
+### App
 
-- 🧠 Interpretación psicológica de sueños
-- 🎨 Interfaz moderna y responsive
-- 🔒 Segura (no almacena datos personales)
-- 🚀 Rápida y eficiente
+| Variable | Descripción | Ejemplo |
+|----------|-------------|---------|
+| `NEXT_PUBLIC_APP_URL` | URL pública de la app | `https://www.oniricapp.com` |
 
-## Learn More
+### Base de datos
 
-To learn more about Next.js, take a look at the following resources:
+| Variable | Descripción | Dónde obtenerla |
+|----------|-------------|-----------------|
+| `DATABASE_URL` | PostgreSQL connection string | [neon.tech](https://neon.tech) → crear proyecto → copiar connection string |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Auth (NextAuth v5)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Variable | Descripción | Cómo generarla |
+|----------|-------------|----------------|
+| `NEXTAUTH_SECRET` | Secret para firmar tokens | `openssl rand -base64 32` |
+| `NEXTAUTH_URL` | URL base de la app | `http://localhost:3000` en local |
+| `GOOGLE_CLIENT_ID` | ID de la app OAuth de Google | [console.cloud.google.com](https://console.cloud.google.com/apis/credentials) |
+| `GOOGLE_CLIENT_SECRET` | Secret de la app OAuth de Google | Mismo panel que el anterior |
 
-## Deploy on Vercel
+**Configurar Google OAuth:**
+1. Ir a [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+2. Crear credenciales → OAuth 2.0 Client IDs
+3. Tipo: Web application
+4. Authorized redirect URIs: `http://localhost:3000/api/auth/callback/google`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Stripe (pagos)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Variable | Descripción | Dónde obtenerla |
+|----------|-------------|-----------------|
+| `STRIPE_SECRET_KEY` | Secret key de Stripe | [dashboard.stripe.com/apikeys](https://dashboard.stripe.com/apikeys) |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Publishable key de Stripe | Mismo panel que el anterior |
+| `STRIPE_WEBHOOK_SECRET` | Secret para verificar webhooks | [dashboard.stripe.com/webhooks](https://dashboard.stripe.com/webhooks) |
+
+**Webhooks en local:**
+```bash
+stripe listen --forward-to localhost:3000/api/stripe/webhook
+```
+
+### Rate limiting (Upstash Redis)
+
+| Variable | Descripción | Dónde obtenerla |
+|----------|-------------|-----------------|
+| `UPSTASH_REDIS_REST_URL` | URL del endpoint REST de Redis | [console.upstash.com](https://console.upstash.com) → crear database |
+| `UPSTASH_REDIS_REST_TOKEN` | Token de autenticación REST | Mismo panel que el anterior |
+
+---
+
+## Deploy en Vercel
+
+1. Importar el repositorio en [vercel.com](https://vercel.com)
+2. Configurar todas las variables de entorno en **Settings → Environment Variables**
+3. En producción, `NEXTAUTH_URL` debe ser la URL pública (ej. `https://www.oniricapp.com`)
+4. Para los webhooks de Stripe en producción, crear un endpoint apuntando a `https://www.oniricapp.com/api/stripe/webhook`
+
+---
+
+## Scripts disponibles
+
+```bash
+bun run dev         # servidor de desarrollo
+bun run build       # build de producción
+bun run start       # servidor de producción
+bun run lint        # linting
+bunx prisma studio  # interfaz visual de la base de datos
+```

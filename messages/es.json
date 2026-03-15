@@ -8,11 +8,145 @@
   },
   "Home": {
     "title": "Interpreta tus sueños",
-    "subtitle": "Describe tu sueño y descubre su significado"
+    "subtitle": "Describe tu sueño y descubre su significado",
+    "createAccount": "Crear cuenta gratis",
+    "signIn": "Ya tengo cuenta",
+    "viewJournal": "Mi diario"
   },
   "TextBox": {
     "placeholder": "Describe tu sueño aquí...",
     "interpreting": "Interpretando...",
-    "clearDream": "Borrar sueño"
+    "clearDream": "Borrar sueño",
+    "saveToJournal": "Guardar en diario",
+    "saving": "Guardando...",
+    "viewInJournal": "Ver en diario",
+    "rateLimitExceeded": "Límite diario alcanzado — actualiza a Premium",
+    "remaining": "{remaining} de {limit} restantes hoy",
+    "rateLimitTitle": "Límite diario alcanzado",
+    "rateLimitDesc": "Actualiza a Premium para tener interpretaciones ilimitadas cada día.",
+    "rateLimitCta": "Actualizar a Premium",
+    "rateLimitDismiss": "Quizás luego"
+  },
+  "Billing": {
+    "title": "Tu suscripción",
+    "subtitle": "Gestiona tu plan y métodos de pago",
+    "currentPlan": "Plan actual",
+    "freePlan": "Gratis",
+    "upgradeToPremium": "Actualizar a Premium",
+    "manageSubscription": "Gestionar suscripción",
+    "loading": "Cargando...",
+    "successMessage": "¡Pago exitoso! Ya tienes acceso a Premium.",
+    "canceledMessage": "El pago fue cancelado. Puedes intentarlo de nuevo cuando quieras."
+  },
+  "Pricing": {
+    "title": "Planes simples y transparentes",
+    "subtitle": "Empieza gratis y actualiza cuando quieras acceder a más.",
+    "perMonth": "/ mes",
+    "loading": "Cargando...",
+    "free": {
+      "badge": "Gratis",
+      "description": "Para explorar el significado de tus sueños",
+      "feature1": "3 interpretaciones por día",
+      "feature2": "Modelo de IA básico",
+      "feature3": "Sin necesidad de cuenta",
+      "cta": "Plan actual"
+    },
+    "premium": {
+      "badge": "Popular",
+      "price": "$4.99",
+      "description": "Para quienes quieren profundizar en sus sueños",
+      "feature1": "Interpretaciones ilimitadas",
+      "feature2": "Modelo de IA avanzado (Claude)",
+      "feature3": "Diario de sueños privado",
+      "feature4": "Historial completo",
+      "cta": "Comenzar con Premium",
+      "manage": "Gestionar suscripción"
+    }
+  },
+  "Profile": {
+    "title": "Tu perfil",
+    "subtitle": "Gestiona tu información personal",
+    "name": "Nombre",
+    "namePlaceholder": "Tu nombre",
+    "email": "Correo electrónico",
+    "changePassword": "Cambiar contraseña",
+    "currentPassword": "Contraseña actual",
+    "newPassword": "Nueva contraseña",
+    "save": "Guardar cambios",
+    "saving": "Guardando...",
+    "saveSuccess": "¡Cambios guardados correctamente!",
+    "saveError": "Error al guardar los cambios",
+    "manageBilling": "Gestionar suscripción",
+    "freePlan": "Gratis"
+  },
+  "Journal": {
+    "title": "Diario de Sueños",
+    "subtitle": "Tu diario personal de sueños",
+    "emptyTitle": "Sin sueños todavía",
+    "emptyDescription": "Después de interpretar un sueño, aparecerá aquí",
+    "emptyCta": "Interpretar un sueño",
+    "loadMore": "Cargar más",
+    "loading": "Cargando...",
+    "noTitle": "Sueño sin título",
+    "detail": {
+      "dreamLabel": "Tu sueño",
+      "interpretationLabel": "Interpretación",
+      "tagsLabel": "Etiquetas",
+      "moodLabel": "Estado de ánimo",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "save": "Guardar",
+      "saving": "Guardando...",
+      "cancel": "Cancelar",
+      "deleteConfirm": "¿Eliminar este sueño?",
+      "deleteConfirmYes": "Sí, eliminar",
+      "deleteConfirmNo": "Cancelar",
+      "saveSuccess": "¡Guardado!",
+      "saveError": "Error al guardar",
+      "deleteError": "Error al eliminar",
+      "back": "Volver al diario",
+      "titlePlaceholder": "Título del sueño",
+      "tagsPlaceholder": "Etiquetas (separadas por comas)"
+    },
+    "upgrade": {
+      "title": "Función Premium",
+      "description": "El diario de sueños es exclusivo para usuarios Premium. Guarda un registro personal de todos tus sueños y sus interpretaciones.",
+      "feature1": "Historial completo de tus sueños",
+      "feature2": "Interpretaciones ilimitadas",
+      "feature3": "Modelo de IA avanzado (Claude)",
+      "cta": "Actualizar a Premium"
+    },
+    "moods": {
+      "happy": "Feliz",
+      "scared": "Asustado",
+      "peaceful": "Tranquilo",
+      "confused": "Confundido",
+      "sad": "Triste",
+      "anxious": "Ansioso",
+      "magical": "Mágico",
+      "exciting": "Emocionante"
+    }
+  },
+  "Auth": {
+    "signIn": "Iniciar sesión",
+    "signUp": "Crear cuenta",
+    "signingIn": "Iniciando sesión...",
+    "signingUp": "Creando cuenta...",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "name": "Nombre",
+    "or": "o",
+    "continueWithGoogle": "Continuar con Google",
+    "invalidCredentials": "Email o contraseña incorrectos",
+    "registerError": "Error al crear la cuenta",
+    "noAccount": "¿No tienes cuenta?",
+    "hasAccount": "¿Ya tienes cuenta?",
+    "signOut": "Cerrar sesión",
+    "signInLink": "Iniciar sesión",
+    "signUpLink": "Crear cuenta",
+    "profile": "Mi perfil",
+    "journal": "Diario de sueños",
+    "billing": "Suscripción",
+    "freePlan": "Gratis"
   }
 }

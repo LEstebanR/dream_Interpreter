@@ -8,11 +8,145 @@
   },
   "Home": {
     "title": "Interpret your dreams",
-    "subtitle": "Describe your dream and discover its meaning"
+    "subtitle": "Describe your dream and discover its meaning",
+    "createAccount": "Create free account",
+    "signIn": "I already have an account",
+    "viewJournal": "My journal"
   },
   "TextBox": {
     "placeholder": "Describe your dream here...",
     "interpreting": "Interpreting...",
-    "clearDream": "Clear dream"
+    "clearDream": "Clear dream",
+    "saveToJournal": "Save to journal",
+    "saving": "Saving...",
+    "viewInJournal": "View in journal",
+    "rateLimitExceeded": "Daily limit reached — upgrade to Premium",
+    "remaining": "{remaining} of {limit} left today",
+    "rateLimitTitle": "Daily limit reached",
+    "rateLimitDesc": "Upgrade to Premium for unlimited dream interpretations every day.",
+    "rateLimitCta": "Upgrade to Premium",
+    "rateLimitDismiss": "Maybe later"
+  },
+  "Billing": {
+    "title": "Your subscription",
+    "subtitle": "Manage your plan and payment methods",
+    "currentPlan": "Current plan",
+    "freePlan": "Free",
+    "upgradeToPremium": "Upgrade to Premium",
+    "manageSubscription": "Manage subscription",
+    "loading": "Loading...",
+    "successMessage": "Payment successful! You now have access to Premium.",
+    "canceledMessage": "Payment was canceled. You can try again whenever you're ready."
+  },
+  "Pricing": {
+    "title": "Simple, transparent pricing",
+    "subtitle": "Start for free and upgrade whenever you're ready.",
+    "perMonth": "/ month",
+    "loading": "Loading...",
+    "free": {
+      "badge": "Free",
+      "description": "To explore the meaning of your dreams",
+      "feature1": "3 interpretations per day",
+      "feature2": "Basic AI model",
+      "feature3": "No account needed",
+      "cta": "Current plan"
+    },
+    "premium": {
+      "badge": "Popular",
+      "price": "$4.99",
+      "description": "For those who want to dive deeper into their dreams",
+      "feature1": "Unlimited interpretations",
+      "feature2": "Advanced AI model (Claude)",
+      "feature3": "Private dream journal",
+      "feature4": "Full history",
+      "cta": "Get Premium",
+      "manage": "Manage subscription"
+    }
+  },
+  "Profile": {
+    "title": "Your profile",
+    "subtitle": "Manage your personal information",
+    "name": "Name",
+    "namePlaceholder": "Your name",
+    "email": "Email",
+    "changePassword": "Change password",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "save": "Save changes",
+    "saving": "Saving...",
+    "saveSuccess": "Changes saved successfully!",
+    "saveError": "Error saving changes",
+    "manageBilling": "Manage subscription",
+    "freePlan": "Free"
+  },
+  "Journal": {
+    "title": "Dream Journal",
+    "subtitle": "Your personal dream diary",
+    "emptyTitle": "No dreams yet",
+    "emptyDescription": "After interpreting a dream, it will appear here",
+    "emptyCta": "Interpret a dream",
+    "loadMore": "Load more",
+    "loading": "Loading...",
+    "noTitle": "Untitled dream",
+    "detail": {
+      "dreamLabel": "Your dream",
+      "interpretationLabel": "Interpretation",
+      "tagsLabel": "Tags",
+      "moodLabel": "Mood",
+      "edit": "Edit",
+      "delete": "Delete",
+      "save": "Save",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "deleteConfirm": "Delete this dream?",
+      "deleteConfirmYes": "Yes, delete",
+      "deleteConfirmNo": "Cancel",
+      "saveSuccess": "Saved!",
+      "saveError": "Error saving",
+      "deleteError": "Error deleting",
+      "back": "Back to journal",
+      "titlePlaceholder": "Dream title",
+      "tagsPlaceholder": "Tags (comma-separated)"
+    },
+    "upgrade": {
+      "title": "Premium feature",
+      "description": "The dream journal is exclusively for Premium users. Keep a personal record of all your dreams and their interpretations.",
+      "feature1": "Full history of your dreams",
+      "feature2": "Unlimited interpretations",
+      "feature3": "Advanced AI model (Claude)",
+      "cta": "Upgrade to Premium"
+    },
+    "moods": {
+      "happy": "Happy",
+      "scared": "Scared",
+      "peaceful": "Peaceful",
+      "confused": "Confused",
+      "sad": "Sad",
+      "anxious": "Anxious",
+      "magical": "Magical",
+      "exciting": "Exciting"
+    }
+  },
+  "Auth": {
+    "signIn": "Sign in",
+    "signUp": "Create account",
+    "signingIn": "Signing in...",
+    "signingUp": "Creating account...",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "or": "or",
+    "continueWithGoogle": "Continue with Google",
+    "invalidCredentials": "Incorrect email or password",
+    "registerError": "Error creating account",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "signOut": "Sign out",
+    "signInLink": "Sign in",
+    "signUpLink": "Create account",
+    "profile": "My profile",
+    "journal": "Dream journal",
+    "billing": "Subscription",
+    "freePlan": "Free"
   }
 }

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
-import { anonRatelimit, freeRatelimit } from "@/lib/ratelimit";
+import { checkAnonLimit, checkFreeLimit } from "@/lib/ratelimit";
 
 const FREE_MODELS = [
   "nvidia/nemotron-3-nano-30b-a3b:free",
@@ -138,34 +138,30 @@ export async function POST(req: Request) {
     if (!isPremium) {
       if (userId) {
         // Free registered user: 5/day
-        if (freeRatelimit) {
-          const result = await freeRatelimit.limit(`free:${userId}`);
-          if (!result.success) {
-            return NextResponse.json(
-              { error: "rate_limit_exceeded", remaining: 0, limit: result.limit },
-              { status: 429 }
-            );
-          }
-          remaining = result.remaining;
-          dailyLimit = result.limit;
+        const result = await checkFreeLimit(userId);
+        if (!result.success) {
+          return NextResponse.json(
+            { error: "rate_limit_exceeded", remaining: 0, limit: result.limit },
+            { status: 429 }
+          );
         }
+        remaining = result.remaining;
+        dailyLimit = result.limit;
       } else {
         // Anonymous user: 3/day by IP
-        if (anonRatelimit) {
-          const ip =
-            headersList.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-            headersList.get("x-real-ip") ??
-            "unknown";
-          const result = await anonRatelimit.limit(`anon:${ip}`);
-          if (!result.success) {
-            return NextResponse.json(
-              { error: "rate_limit_exceeded", remaining: 0, limit: result.limit },
-              { status: 429 }
-            );
-          }
-          remaining = result.remaining;
-          dailyLimit = result.limit;
+        const ip =
+          headersList.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+          headersList.get("x-real-ip") ??
+          "unknown";
+        const result = await checkAnonLimit(ip);
+        if (!result.success) {
+          return NextResponse.json(
+            { error: "rate_limit_exceeded", remaining: 0, limit: result.limit },
+            { status: 429 }
+          );
         }
+        remaining = result.remaining;
+        dailyLimit = result.limit;
       }
     }
 

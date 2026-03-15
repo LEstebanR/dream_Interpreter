@@ -49,10 +49,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.id = user.id;
         token.isPremium = (user as { isPremium?: boolean }).isPremium ?? false;
+        // Store image URL in JWT to avoid extra DB queries, but cap to avoid 431 errors
+        token.picture = (user as { image?: string | null }).image ?? null;
       }
       if (trigger === "update" && session) {
         if (typeof session.name === "string") token.name = session.name;
-        if (typeof session.picture === "string") token.picture = session.picture;
+        if (typeof session.image === "string") token.picture = session.image;
       }
       return token;
     },
@@ -60,6 +62,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (token) {
         session.user.id = token.id as string;
         session.user.isPremium = token.isPremium as boolean;
+        if (token.picture) session.user.image = token.picture as string;
       }
       return session;
     },

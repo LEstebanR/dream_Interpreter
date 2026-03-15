@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { Sparkles } from "lucide-react";
+import { Sparkles, BookOpen } from "lucide-react";
 import { DreamSection } from "@/components/dream-section";
 import { auth } from "@/lib/auth";
 import Link from "next/link";
@@ -39,7 +39,7 @@ export default async function Home({
           <DreamSection subtitle={t("subtitle")} />
 
           {/* auth CTA — solo cuando no hay sesión */}
-          {!session?.user && (
+          {!session?.user ? (
             <div
               className="flex items-center gap-2 opacity-0"
               style={{ animation: "fade-up 0.6s ease-out 0.6s both" }}
@@ -55,6 +55,19 @@ export default async function Home({
                 className="flex items-center rounded-full border border-border px-3.5 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:border-primary/60 transition-colors duration-200"
               >
                 {t("signIn")}
+              </Link>
+            </div>
+          ) : (
+            <div
+              className="opacity-0"
+              style={{ animation: "fade-up 0.6s ease-out 0.6s both" }}
+            >
+              <Link
+                href={`/${locale}/journal`}
+                className="flex items-center gap-1.5 rounded-full border border-border px-3.5 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:border-primary/60 transition-colors duration-200"
+              >
+                <BookOpen className="w-3.5 h-3.5" />
+                {t("viewJournal")}
               </Link>
             </div>
           )}

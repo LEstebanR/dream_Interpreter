@@ -20,7 +20,12 @@
     "saveToJournal": "Save to journal",
     "saving": "Saving...",
     "viewInJournal": "View in journal",
-    "rateLimitExceeded": "Daily limit reached — upgrade to Premium"
+    "rateLimitExceeded": "Daily limit reached — upgrade to Premium",
+    "remaining": "{remaining} of {limit} left today",
+    "rateLimitTitle": "Daily limit reached",
+    "rateLimitDesc": "Upgrade to Premium for unlimited dream interpretations every day.",
+    "rateLimitCta": "Upgrade to Premium",
+    "rateLimitDismiss": "Maybe later"
   },
   "Billing": {
     "title": "Your subscription",

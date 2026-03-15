@@ -132,17 +132,22 @@ export async function POST(req: Request) {
     const userId = session?.user?.id;
 
     // Rate limiting for non-premium users
+    let remaining: number | null = null;
+    let dailyLimit: number | null = null;
+
     if (!isPremium) {
       if (userId) {
         // Free registered user: 5/day
         if (freeRatelimit) {
-          const { success } = await freeRatelimit.limit(`free:${userId}`);
-          if (!success) {
+          const result = await freeRatelimit.limit(`free:${userId}`);
+          if (!result.success) {
             return NextResponse.json(
-              { error: "rate_limit_exceeded" },
+              { error: "rate_limit_exceeded", remaining: 0, limit: result.limit },
               { status: 429 }
             );
           }
+          remaining = result.remaining;
+          dailyLimit = result.limit;
         }
       } else {
         // Anonymous user: 3/day by IP
@@ -151,13 +156,15 @@ export async function POST(req: Request) {
             headersList.get("x-forwarded-for")?.split(",")[0]?.trim() ??
             headersList.get("x-real-ip") ??
             "unknown";
-          const { success } = await anonRatelimit.limit(`anon:${ip}`);
-          if (!success) {
+          const result = await anonRatelimit.limit(`anon:${ip}`);
+          if (!result.success) {
             return NextResponse.json(
-              { error: "rate_limit_exceeded" },
+              { error: "rate_limit_exceeded", remaining: 0, limit: result.limit },
               { status: 429 }
             );
           }
+          remaining = result.remaining;
+          dailyLimit = result.limit;
         }
       }
     }
@@ -180,7 +187,7 @@ export async function POST(req: Request) {
       ? await callPremiumModel(prompt, openRouterHeaders)
       : await callFreeModel(prompt, openRouterHeaders);
 
-    return NextResponse.json({ interpretation, isPremium });
+    return NextResponse.json({ interpretation, isPremium, remaining, limit: dailyLimit });
   } catch (error) {
     console.error("Error en la interpretación:", error);
     return NextResponse.json(

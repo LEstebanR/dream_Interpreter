@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
+import { anonRatelimit, freeRatelimit } from "@/lib/ratelimit";
 
 const FREE_MODELS = [
   "nvidia/nemotron-3-nano-30b-a3b:free",
@@ -6,9 +9,11 @@ const FREE_MODELS = [
   "arcee-ai/trinity-large-preview:free",
 ];
 
-async function callOpenRouter(
+const PREMIUM_MODEL = "anthropic/claude-3.5-haiku";
+
+async function callFreeModel(
   prompt: string,
-  headers: Headers,
+  reqHeaders: Headers,
   modelIndex = 0
 ): Promise<string> {
   if (modelIndex >= FREE_MODELS.length) {
@@ -18,7 +23,7 @@ async function callOpenRouter(
   const model = FREE_MODELS[modelIndex];
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
-    headers,
+    headers: reqHeaders,
     body: JSON.stringify({
       model,
       messages: [{ role: "user", content: prompt }],
@@ -31,9 +36,31 @@ async function callOpenRouter(
     const errorBody = await response.text();
     if (response.status === 404) {
       console.warn(`Model ${model} not available, trying next...`);
-      return callOpenRouter(prompt, headers, modelIndex + 1);
+      return callFreeModel(prompt, reqHeaders, modelIndex + 1);
     }
     console.error("OpenRouter error:", response.status, errorBody);
+    throw new Error(`OpenRouter ${response.status}: ${errorBody}`);
+  }
+
+  const data = await response.json();
+  return data.choices[0].message.content;
+}
+
+async function callPremiumModel(prompt: string, reqHeaders: Headers): Promise<string> {
+  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: reqHeaders,
+    body: JSON.stringify({
+      model: PREMIUM_MODEL,
+      messages: [{ role: "user", content: prompt }],
+      max_tokens: 1200,
+      temperature: 0.7,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    console.error("OpenRouter premium error:", response.status, errorBody);
     throw new Error(`OpenRouter ${response.status}: ${errorBody}`);
   }
 
@@ -72,6 +99,7 @@ Provide a general and deep interpretation of the dream. In a single paragraph, i
 
 export async function POST(req: Request) {
   try {
+    const [session, headersList] = await Promise.all([auth(), headers()]);
     const { dream, locale } = await req.json();
 
     if (!dream) {
@@ -81,6 +109,40 @@ export async function POST(req: Request) {
       );
     }
 
+    const isPremium = session?.user?.isPremium ?? false;
+    const userId = session?.user?.id;
+
+    // Rate limiting for non-premium users
+    if (!isPremium) {
+      if (userId) {
+        // Free registered user: 5/day
+        if (freeRatelimit) {
+          const { success } = await freeRatelimit.limit(`free:${userId}`);
+          if (!success) {
+            return NextResponse.json(
+              { error: "rate_limit_exceeded" },
+              { status: 429 }
+            );
+          }
+        }
+      } else {
+        // Anonymous user: 3/day by IP
+        if (anonRatelimit) {
+          const ip =
+            headersList.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+            headersList.get("x-real-ip") ??
+            "unknown";
+          const { success } = await anonRatelimit.limit(`anon:${ip}`);
+          if (!success) {
+            return NextResponse.json(
+              { error: "rate_limit_exceeded" },
+              { status: 429 }
+            );
+          }
+        }
+      }
+    }
+
     const buildPrompt = prompts[locale] ?? prompts.es;
     const prompt = buildPrompt(dream);
 
@@ -88,15 +150,18 @@ export async function POST(req: Request) {
       throw new Error("Missing required environment variables");
     }
 
-    const headers = new Headers({
+    const openRouterHeaders = new Headers({
       "Content-Type": "application/json",
       Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
       "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL,
       "X-Title": "Dream Interpreter",
     });
 
-    const interpretation = await callOpenRouter(prompt, headers);
-    return NextResponse.json({ interpretation });
+    const interpretation = isPremium
+      ? await callPremiumModel(prompt, openRouterHeaders)
+      : await callFreeModel(prompt, openRouterHeaders);
+
+    return NextResponse.json({ interpretation, isPremium });
   } catch (error) {
     console.error("Error en la interpretación:", error);
     return NextResponse.json(

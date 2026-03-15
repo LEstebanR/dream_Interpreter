@@ -19,7 +19,8 @@
     "clearDream": "Borrar sueño",
     "saveToJournal": "Guardar en diario",
     "saving": "Guardando...",
-    "viewInJournal": "Ver en diario"
+    "viewInJournal": "Ver en diario",
+    "rateLimitExceeded": "Límite diario alcanzado — actualiza a Premium"
   },
   "Billing": {
     "title": "Tu suscripción",

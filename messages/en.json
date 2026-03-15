@@ -19,7 +19,8 @@
     "clearDream": "Clear dream",
     "saveToJournal": "Save to journal",
     "saving": "Saving...",
-    "viewInJournal": "View in journal"
+    "viewInJournal": "View in journal",
+    "rateLimitExceeded": "Daily limit reached — upgrade to Premium"
   },
   "Billing": {
     "title": "Your subscription",

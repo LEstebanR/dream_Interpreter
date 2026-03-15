@@ -11,15 +11,18 @@ import { useRouter } from "next/navigation";
 export default function TextBox({
   interpretation,
   setInterpretation,
+  setIsPremiumModel,
 }: {
   interpretation: string;
   setInterpretation: (interpretation: string) => void;
+  setIsPremiumModel?: (v: boolean) => void;
 }) {
   const [dream, setDream] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
   const [savedEntryId, setSavedEntryId] = useState<string | null>(null);
+  const [rateLimited, setRateLimited] = useState(false);
   const t = useTranslations("TextBox");
   const locale = useLocale();
   const router = useRouter();
@@ -30,13 +33,21 @@ export default function TextBox({
   const handleInterpret = async () => {
     if (!dream.trim()) return;
     setIsLoading(true);
+    setRateLimited(false);
     try {
       const response = await fetch("/api/interpret", {
         method: "POST",
         body: JSON.stringify({ dream, locale }),
       });
+      if (response.status === 429) {
+        setRateLimited(true);
+        return;
+      }
       const data = await response.json();
-      setInterpretation(data.interpretation);
+      if (data.interpretation) {
+        setInterpretation(data.interpretation);
+        setIsPremiumModel?.(data.isPremium ?? false);
+      }
     } catch (error) {
       console.error("Error:", error);
     } finally {
@@ -122,7 +133,18 @@ export default function TextBox({
           {/* footer row */}
           <div className="flex items-center justify-between px-5 pb-4 pt-1">
             <AnimatePresence mode="wait">
-              {interpretation ? (
+              {rateLimited ? (
+                <motion.span
+                  key="ratelimit"
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 4 }}
+                  transition={{ duration: 0.2 }}
+                  className="text-xs text-destructive"
+                >
+                  {t("rateLimitExceeded")}
+                </motion.span>
+              ) : interpretation ? (
                 <motion.button
                   key="save"
                   initial={{ opacity: 0, y: 4, filter: "blur(4px)" }}
@@ -169,7 +191,7 @@ export default function TextBox({
                     transition={{ duration: 0.25, ease: "easeOut" }}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => { setInterpretation(""); setDream(""); setSaveState("idle"); setSavedEntryId(null); }}
+                    onClick={() => { setInterpretation(""); setDream(""); setSaveState("idle"); setSavedEntryId(null); setRateLimited(false); }}
                     className="flex items-center gap-1.5 rounded-full border border-border px-3.5 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:border-primary/60 transition-colors duration-200 cursor-pointer"
                   >
                     <Trash2 className="w-3.5 h-3.5" />

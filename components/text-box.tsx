@@ -1,10 +1,12 @@
 "use client";
 
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Send, Trash2 } from "lucide-react";
+import { Loader2, Send, Trash2, BookOpen, Check } from "lucide-react";
 import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function TextBox({
   interpretation,
@@ -16,8 +18,14 @@ export default function TextBox({
   const [dream, setDream] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
+  const [savedEntryId, setSavedEntryId] = useState<string | null>(null);
   const t = useTranslations("TextBox");
   const locale = useLocale();
+  const router = useRouter();
+  const { data: session } = useSession();
+  const isPremium = session?.user?.isPremium ?? false;
+  const isLoggedIn = !!session?.user;
 
   const handleInterpret = async () => {
     if (!dream.trim()) return;
@@ -37,6 +45,30 @@ export default function TextBox({
   };
 
   const canSend = !isLoading && !!dream.trim() && !interpretation;
+
+  const handleSaveToJournal = async () => {
+    if (!isLoggedIn || !isPremium) {
+      router.push(`/${locale}/pricing`);
+      return;
+    }
+    setSaveState("saving");
+    try {
+      const res = await fetch("/api/journal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dreamText: dream, interpretation }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setSavedEntryId(data.entry.id);
+        setSaveState("saved");
+      } else {
+        setSaveState("idle");
+      }
+    } catch {
+      setSaveState("idle");
+    }
+  };
 
   return (
     <div className="w-full max-w-3xl px-4 pb-6">
@@ -89,17 +121,40 @@ export default function TextBox({
 
           {/* footer row */}
           <div className="flex items-center justify-between px-5 pb-4 pt-1">
-            <AnimatePresence>
-              {dream.length > 0 && !interpretation && (
-                <motion.span
-                  initial={{ opacity: 0, y: 4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 4 }}
-                  transition={{ duration: 0.2 }}
-                  className="text-xs text-muted-foreground/40 tabular-nums select-none"
+            <AnimatePresence mode="wait">
+              {interpretation ? (
+                <motion.button
+                  key="save"
+                  initial={{ opacity: 0, y: 4, filter: "blur(4px)" }}
+                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                  exit={{ opacity: 0, y: 4, filter: "blur(4px)" }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                  onClick={saveState === "saved" ? () => router.push(`/${locale}/journal/${savedEntryId}`) : handleSaveToJournal}
+                  disabled={saveState === "saving"}
+                  className={`flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs transition-colors duration-200 cursor-pointer disabled:opacity-50 ${
+                    saveState === "saved"
+                      ? "border-primary/40 text-primary hover:border-primary"
+                      : "border-border text-muted-foreground hover:text-foreground hover:border-primary/60"
+                  }`}
                 >
-                  {dream.length}
-                </motion.span>
+                  {saveState === "saving" && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  {saveState === "saved" && <Check className="w-3.5 h-3.5" />}
+                  {saveState === "idle" && <BookOpen className="w-3.5 h-3.5" />}
+                  {saveState === "saved" ? t("viewInJournal") : saveState === "saving" ? t("saving") : t("saveToJournal")}
+                </motion.button>
+              ) : (
+                dream.length > 0 && (
+                  <motion.span
+                    key="count"
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 4 }}
+                    transition={{ duration: 0.2 }}
+                    className="text-xs text-muted-foreground/40 tabular-nums select-none"
+                  >
+                    {dream.length}
+                  </motion.span>
+                )
               )}
             </AnimatePresence>
 
@@ -114,7 +169,7 @@ export default function TextBox({
                     transition={{ duration: 0.25, ease: "easeOut" }}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => { setInterpretation(""); setDream(""); }}
+                    onClick={() => { setInterpretation(""); setDream(""); setSaveState("idle"); setSavedEntryId(null); }}
                     className="flex items-center gap-1.5 rounded-full border border-border px-3.5 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:border-primary/60 transition-colors duration-200 cursor-pointer"
                   >
                     <Trash2 className="w-3.5 h-3.5" />

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -42,4 +43,38 @@ export async function GET(req: Request) {
     hasMore: skip + entries.length < total,
     page,
   });
+}
+
+const postSchema = z.object({
+  dreamText: z.string().min(1).max(5000),
+  interpretation: z.string().min(1),
+});
+
+export async function POST(req: Request) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (!session.user.isPremium) {
+    return NextResponse.json({ error: "Premium required" }, { status: 403 });
+  }
+
+  const body = await req.json();
+  const parsed = postSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Invalid data" }, { status: 400 });
+  }
+
+  const entry = await prisma.dreamEntry.create({
+    data: {
+      userId: session.user.id,
+      dreamText: parsed.data.dreamText,
+      interpretation: parsed.data.interpretation,
+    },
+  });
+
+  return NextResponse.json(
+    { entry: { ...entry, createdAt: entry.createdAt.toISOString() } },
+    { status: 201 }
+  );
 }

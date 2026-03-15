@@ -10,12 +10,16 @@
     "title": "Interpret your dreams",
     "subtitle": "Describe your dream and discover its meaning",
     "createAccount": "Create free account",
-    "signIn": "I already have an account"
+    "signIn": "I already have an account",
+    "viewJournal": "My journal"
   },
   "TextBox": {
     "placeholder": "Describe your dream here...",
     "interpreting": "Interpreting...",
-    "clearDream": "Clear dream"
+    "clearDream": "Clear dream",
+    "saveToJournal": "Save to journal",
+    "saving": "Saving...",
+    "viewInJournal": "View in journal"
   },
   "Billing": {
     "title": "Your subscription",
@@ -135,6 +139,7 @@
     "signInLink": "Sign in",
     "signUpLink": "Create account",
     "profile": "My profile",
+    "journal": "Dream journal",
     "billing": "Subscription",
     "freePlan": "Free"
   }

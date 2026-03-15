@@ -10,12 +10,16 @@
     "title": "Interpreta tus sueños",
     "subtitle": "Describe tu sueño y descubre su significado",
     "createAccount": "Crear cuenta gratis",
-    "signIn": "Ya tengo cuenta"
+    "signIn": "Ya tengo cuenta",
+    "viewJournal": "Mi diario"
   },
   "TextBox": {
     "placeholder": "Describe tu sueño aquí...",
     "interpreting": "Interpretando...",
-    "clearDream": "Borrar sueño"
+    "clearDream": "Borrar sueño",
+    "saveToJournal": "Guardar en diario",
+    "saving": "Guardando...",
+    "viewInJournal": "Ver en diario"
   },
   "Billing": {
     "title": "Tu suscripción",
@@ -135,6 +139,7 @@
     "signInLink": "Iniciar sesión",
     "signUpLink": "Crear cuenta",
     "profile": "Mi perfil",
+    "journal": "Diario de sueños",
     "billing": "Suscripción",
     "freePlan": "Gratis"
   }

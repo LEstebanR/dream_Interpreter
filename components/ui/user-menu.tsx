@@ -4,7 +4,7 @@ import { useSession, signOut } from "next-auth/react";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import Image from "next/image";
-import { User, CreditCard, LogOut, ChevronDown } from "lucide-react";
+import { User, CreditCard, LogOut, ChevronDown, BookOpen } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -46,6 +46,13 @@ export function UserMenu() {
           <Link href="/profile" className="flex items-center gap-2.5 cursor-pointer">
             <User className="w-4 h-4 text-muted-foreground" />
             {t("profile")}
+          </Link>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem asChild>
+          <Link href="/journal" className="flex items-center gap-2.5 cursor-pointer">
+            <BookOpen className="w-4 h-4 text-muted-foreground" />
+            {t("journal")}
           </Link>
         </DropdownMenuItem>
 

@@ -20,7 +20,12 @@
     "saveToJournal": "Guardar en diario",
     "saving": "Guardando...",
     "viewInJournal": "Ver en diario",
-    "rateLimitExceeded": "Límite diario alcanzado — actualiza a Premium"
+    "rateLimitExceeded": "Límite diario alcanzado — actualiza a Premium",
+    "remaining": "{remaining} de {limit} restantes hoy",
+    "rateLimitTitle": "Límite diario alcanzado",
+    "rateLimitDesc": "Actualiza a Premium para tener interpretaciones ilimitadas cada día.",
+    "rateLimitCta": "Actualizar a Premium",
+    "rateLimitDismiss": "Quizás luego"
   },
   "Billing": {
     "title": "Tu suscripción",

@@ -9,7 +9,11 @@ const FREE_MODELS = [
   "arcee-ai/trinity-large-preview:free",
 ];
 
-const PREMIUM_MODEL = "anthropic/claude-3.5-haiku";
+const PREMIUM_MODELS = [
+  "anthropic/claude-3.5-haiku",
+  "openai/gpt-4o-mini",
+  "google/gemini-flash-1.5",
+];
 
 async function callFreeModel(
   prompt: string,
@@ -46,12 +50,23 @@ async function callFreeModel(
   return data.choices[0].message.content;
 }
 
-async function callPremiumModel(prompt: string, reqHeaders: Headers): Promise<string> {
+async function callPremiumModel(
+  prompt: string,
+  reqHeaders: Headers,
+  modelIndex = 0
+): Promise<string> {
+  // Once all premium models exhausted, fall back to free models
+  if (modelIndex >= PREMIUM_MODELS.length) {
+    console.warn("All premium models unavailable, falling back to free models");
+    return callFreeModel(prompt, reqHeaders);
+  }
+
+  const model = PREMIUM_MODELS[modelIndex];
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: reqHeaders,
     body: JSON.stringify({
-      model: PREMIUM_MODEL,
+      model,
       messages: [{ role: "user", content: prompt }],
       max_tokens: 1200,
       temperature: 0.7,
@@ -60,6 +75,10 @@ async function callPremiumModel(prompt: string, reqHeaders: Headers): Promise<st
 
   if (!response.ok) {
     const errorBody = await response.text();
+    if (response.status === 404 || response.status === 429) {
+      console.warn(`Premium model ${model} unavailable (${response.status}), trying next...`);
+      return callPremiumModel(prompt, reqHeaders, modelIndex + 1);
+    }
     console.error("OpenRouter premium error:", response.status, errorBody);
     throw new Error(`OpenRouter ${response.status}: ${errorBody}`);
   }

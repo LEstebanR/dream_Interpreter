@@ -69,6 +69,54 @@
     "manageBilling": "Gestionar suscripción",
     "freePlan": "Gratis"
   },
+  "Journal": {
+    "title": "Diario de Sueños",
+    "subtitle": "Tu diario personal de sueños",
+    "emptyTitle": "Sin sueños todavía",
+    "emptyDescription": "Después de interpretar un sueño, aparecerá aquí",
+    "emptyCta": "Interpretar un sueño",
+    "loadMore": "Cargar más",
+    "loading": "Cargando...",
+    "noTitle": "Sueño sin título",
+    "detail": {
+      "dreamLabel": "Tu sueño",
+      "interpretationLabel": "Interpretación",
+      "tagsLabel": "Etiquetas",
+      "moodLabel": "Estado de ánimo",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "save": "Guardar",
+      "saving": "Guardando...",
+      "cancel": "Cancelar",
+      "deleteConfirm": "¿Eliminar este sueño?",
+      "deleteConfirmYes": "Sí, eliminar",
+      "deleteConfirmNo": "Cancelar",
+      "saveSuccess": "¡Guardado!",
+      "saveError": "Error al guardar",
+      "deleteError": "Error al eliminar",
+      "back": "Volver al diario",
+      "titlePlaceholder": "Título del sueño",
+      "tagsPlaceholder": "Etiquetas (separadas por comas)"
+    },
+    "upgrade": {
+      "title": "Función Premium",
+      "description": "El diario de sueños es exclusivo para usuarios Premium. Guarda un registro personal de todos tus sueños y sus interpretaciones.",
+      "feature1": "Historial completo de tus sueños",
+      "feature2": "Interpretaciones ilimitadas",
+      "feature3": "Modelo de IA avanzado (Claude)",
+      "cta": "Actualizar a Premium"
+    },
+    "moods": {
+      "happy": "Feliz",
+      "scared": "Asustado",
+      "peaceful": "Tranquilo",
+      "confused": "Confundido",
+      "sad": "Triste",
+      "anxious": "Ansioso",
+      "magical": "Mágico",
+      "exciting": "Emocionante"
+    }
+  },
   "Auth": {
     "signIn": "Iniciar sesión",
     "signUp": "Crear cuenta",

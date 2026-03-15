@@ -69,6 +69,54 @@
     "manageBilling": "Manage subscription",
     "freePlan": "Free"
   },
+  "Journal": {
+    "title": "Dream Journal",
+    "subtitle": "Your personal dream diary",
+    "emptyTitle": "No dreams yet",
+    "emptyDescription": "After interpreting a dream, it will appear here",
+    "emptyCta": "Interpret a dream",
+    "loadMore": "Load more",
+    "loading": "Loading...",
+    "noTitle": "Untitled dream",
+    "detail": {
+      "dreamLabel": "Your dream",
+      "interpretationLabel": "Interpretation",
+      "tagsLabel": "Tags",
+      "moodLabel": "Mood",
+      "edit": "Edit",
+      "delete": "Delete",
+      "save": "Save",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "deleteConfirm": "Delete this dream?",
+      "deleteConfirmYes": "Yes, delete",
+      "deleteConfirmNo": "Cancel",
+      "saveSuccess": "Saved!",
+      "saveError": "Error saving",
+      "deleteError": "Error deleting",
+      "back": "Back to journal",
+      "titlePlaceholder": "Dream title",
+      "tagsPlaceholder": "Tags (comma-separated)"
+    },
+    "upgrade": {
+      "title": "Premium feature",
+      "description": "The dream journal is exclusively for Premium users. Keep a personal record of all your dreams and their interpretations.",
+      "feature1": "Full history of your dreams",
+      "feature2": "Unlimited interpretations",
+      "feature3": "Advanced AI model (Claude)",
+      "cta": "Upgrade to Premium"
+    },
+    "moods": {
+      "happy": "Happy",
+      "scared": "Scared",
+      "peaceful": "Peaceful",
+      "confused": "Confused",
+      "sad": "Sad",
+      "anxious": "Anxious",
+      "magical": "Magical",
+      "exciting": "Exciting"
+    }
+  },
   "Auth": {
     "signIn": "Sign in",
     "signUp": "Create account",

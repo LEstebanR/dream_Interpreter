@@ -37,18 +37,22 @@ App web de interpretación de sueños con IA. Usuarios anónimos pueden interpre
   /[locale]               # routing de i18n (next-intl)
     layout.tsx            # Server Component — fonts, providers, metadata, AuthSessionProvider
     page.tsx              # Server Component — título, ícono, <DreamSection />
-    /sign-in              # página de login
+    /sign-in              # página de login (acepta ?reset=1 para mostrar mensaje de éxito)
     /sign-up              # página de registro
-    /journal              # diario de sueños (solo premium) — pendiente
-    /profile              # pendiente
-    /billing              # página de suscripción (plan actual + gestionar)
+    /forgot-password      # formulario para solicitar reset de contraseña
+    /reset-password       # formulario para crear nueva contraseña (requiere ?token=&email=)
+    /journal              # diario de sueños (solo premium)
+    /profile              # perfil y cambio de contraseña
+    /billing              # página de suscripción (plan actual + gestionar + cancelar)
     /pricing              # página de pricing con tarjetas Free/Premium
   /api
     /interpret            # POST — interpretar sueño (con fallback de modelos)
     /auth
       /[...nextauth]      # handlers NextAuth v5
       /register           # POST — registro con email/password
-    /journal              # CRUD entradas del diario — pendiente
+      /forgot-password    # POST — enviar email de recuperación (Resend)
+      /reset-password     # POST — cambiar contraseña con token
+    /journal              # CRUD entradas del diario
     /stripe
       /checkout           # POST — crear Checkout Session
       /portal             # POST — crear Customer Portal Session
@@ -57,8 +61,10 @@ App web de interpretación de sueños con IA. Usuarios anónimos pueden interpre
   dream-section.tsx       # Client island — estado interpretación + TextBox
   text-box.tsx            # Client island — input + llamada a API
   /auth
-    sign-in-form.tsx      # Client island — formulario login + Google OAuth
-    sign-up-form.tsx      # Client island — formulario registro
+    sign-in-form.tsx           # Client island — formulario login + Google OAuth + link "¿Olvidaste contraseña?"
+    sign-up-form.tsx           # Client island — formulario registro
+    forgot-password-form.tsx   # Client island — solicitar reset de contraseña
+    reset-password-form.tsx    # Client island — crear nueva contraseña con token
   /providers
     session-provider.tsx  # Client wrapper de SessionProvider (next-auth/react)
   /billing
@@ -84,6 +90,7 @@ App web de interpretación de sueños con IA. Usuarios anónimos pueden interpre
   auth.ts                 # NextAuth v5 config — exporta { handlers, signIn, signOut, auth }
   prisma.ts               # Singleton PrismaClient
   stripe.ts               # Singleton Stripe (misma pauta que prisma.ts)
+  email.ts                # Singleton Resend para envío de emails
   utils.ts                # cn(), etc.
 /prisma
   schema.prisma           # modelos: User, Account, Session, VerificationToken, DreamEntry
@@ -97,10 +104,11 @@ middleware.ts             # next-intl locale routing
 ## Modelos de base de datos (Prisma)
 
 ```prisma
-User          — id, email, name, image, isPremium, stripeCustomerId, stripeSubscriptionId
-DreamEntry    — id, userId, title, dreamText, interpretation, mood, tags[], createdAt
-Account       — NextAuth OAuth accounts
-Session       — NextAuth sessions
+User              — id, email, name, image, isPremium, stripeCustomerId, stripeSubscriptionId, password
+DreamEntry        — id, userId, title, dreamText, interpretation, mood, tags[], createdAt
+Account           — NextAuth OAuth accounts
+Session           — NextAuth sessions
+VerificationToken — identifier (email), token (random hex), expires — usado para reset de contraseña
 ```
 
 ---
@@ -144,6 +152,9 @@ NEXT_PUBLIC_STRIPE_PRICE_ID=         # Price ID del plan Premium (price_xxx, no 
 # Rate limiting
 UPSTASH_REDIS_REST_URL=
 UPSTASH_REDIS_REST_TOKEN=
+
+# Email (Resend)
+RESEND_API_KEY=              # Para envío de emails (reset de contraseña, etc.)
 ```
 
 Nunca hardcodear valores. Siempre leer desde `process.env`.
@@ -292,10 +303,41 @@ Durante desarrollo, los eventos de Stripe solo llegan a localhost si `stripe lis
 Para reenviar un evento que se perdió: `stripe events resend <evt_xxx>` con el listener activo.
 El `STRIPE_WEBHOOK_SECRET` del listener local (`whsec_...`) es diferente al de producción — actualizarlo en `.env.local` cada vez que se inicia un nuevo listener.
 
-### JWT stale después de actualizar isPremium
-El JWT se genera al hacer login y no se refresca automáticamente cuando `isPremium` cambia en BD.
-El usuario debe cerrar sesión y volver a entrar para que `session.user.isPremium` refleje el nuevo valor.
-Pendiente: implementar refresh del JWT en el callback de `session` leyendo la BD.
+### JWT — isPremium siempre fresco desde la BD
+El JWT se genera al hacer login y no se actualiza automáticamente cuando Stripe cambia `isPremium` en BD.
+**Solución implementada**: el callback `session` en `lib/auth.ts` hace una query a la BD en cada request para leer `isPremium` fresco:
+```ts
+async session({ session, token }) {
+  if (token) {
+    session.user.id = token.id as string;
+    if (token.picture) session.user.image = token.picture as string;
+    const dbUser = await prisma.user.findUnique({
+      where: { id: token.id as string },
+      select: { isPremium: true },
+    });
+    session.user.isPremium = dbUser?.isPremium ?? false;
+  }
+  return session;
+}
+```
+Esto añade una query por request pero garantiza que el estado premium sea siempre correcto tras el webhook de Stripe.
+
+### Reset de contraseña — flujo completo
+Usar `VerificationToken` de Prisma + Resend para el flujo de recuperación:
+1. `POST /api/auth/forgot-password` — genera token hexadecimal (32 bytes), guarda en `VerificationToken` con 1h de expiración, envía email con Resend. Siempre responde `{ ok: true }` para evitar user enumeration.
+2. `POST /api/auth/reset-password` — valida token + expiry, hashea con bcrypt, actualiza `User.password`, elimina el token en transacción.
+3. Redirect a `/sign-in?reset=1` para mostrar mensaje de éxito.
+- Solo funciona con cuentas que tienen `password` (no OAuth-only).
+- Usar `prisma.verificationToken.deleteMany({ where: { identifier: email } })` antes de crear nuevo token para evitar duplicados.
+
+### Resend — singleton igual que Prisma/Stripe
+```ts
+// lib/email.ts
+const globalForResend = globalThis as unknown as { resend: Resend };
+export const resend = globalForResend.resend ?? new Resend(process.env.RESEND_API_KEY!);
+if (process.env.NODE_ENV !== "production") globalForResend.resend = resend;
+```
+El `from:` debe usar un dominio verificado en Resend. En producción configurar `noreply@<dominio_verificado>`.
 
 ---
 

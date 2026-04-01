@@ -61,8 +61,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       if (token) {
         session.user.id = token.id as string;
-        session.user.isPremium = token.isPremium as boolean;
         if (token.picture) session.user.image = token.picture as string;
+        // Always read isPremium fresh from DB to avoid stale JWT after Stripe webhook
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { isPremium: true },
+        });
+        session.user.isPremium = dbUser?.isPremium ?? false;
       }
       return session;
     },

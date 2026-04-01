@@ -15,6 +15,7 @@ export default function Header() {
       {/* center: logo / home link */}
       <Link
         href="/"
+        aria-label="OniricApp — Home"
         className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5 hover:opacity-70 transition-opacity"
       >
         <Sparkles className="w-3.5 h-3.5 text-primary" />

@@ -26,7 +26,10 @@ export function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-2 rounded-full px-2 py-1 hover:bg-muted transition-colors cursor-pointer min-w-0">
+        <button
+          className="flex items-center gap-2 rounded-full px-2 py-1 hover:bg-muted transition-colors cursor-pointer min-w-0"
+          aria-label={t("profile")}
+        >
           {image ? (
             <Image src={image} alt={name} width={24} height={24} className="rounded-full shrink-0" />
           ) : (
@@ -34,7 +37,7 @@ export function UserMenu() {
               {name.charAt(0)}
             </span>
           )}
-          <span className="text-sm font-medium text-foreground/80 capitalize truncate max-w-[120px]">
+          <span className="hidden sm:block text-sm font-medium text-foreground/80 capitalize truncate max-w-[120px]">
             {name}
           </span>
           <ChevronDown className="w-3.5 h-3.5 text-muted-foreground shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180" />

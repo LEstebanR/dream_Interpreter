@@ -25,7 +25,9 @@
     "rateLimitTitle": "Límite diario alcanzado",
     "rateLimitDesc": "Actualiza a Premium para tener interpretaciones ilimitadas cada día.",
     "rateLimitCta": "Actualizar a Premium",
-    "rateLimitDismiss": "Quizás luego"
+    "rateLimitDismiss": "Quizás luego",
+    "sendDream": "Interpretar sueño",
+    "switchToLanguage": "Cambiar a {lang}"
   },
   "Billing": {
     "title": "Tu suscripción",

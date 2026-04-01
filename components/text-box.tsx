@@ -159,7 +159,8 @@ export default function TextBox({
 
                 <Textarea
                   placeholder={t("placeholder")}
-                  className="w-full min-h-[8rem] max-h-[14rem] resize-none border-0 bg-transparent focus-visible:ring-0 shadow-none px-5 pt-5 pb-2 text-base leading-relaxed placeholder:text-muted-foreground/40"
+                  aria-label={t("placeholder")}
+                  className="w-full min-h-[10rem] sm:min-h-[8rem] max-h-[14rem] resize-none border-0 bg-transparent focus-visible:ring-0 shadow-none px-5 pt-5 pb-2 text-base leading-relaxed placeholder:text-muted-foreground/40"
                   value={dream}
                   onChange={(e) => setDream(e.target.value)}
                   onFocus={() => setIsFocused(true)}
@@ -214,7 +215,7 @@ export default function TextBox({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 4 }}
                   transition={{ duration: 0.2 }}
-                  className="text-xs text-muted-foreground/40 tabular-nums select-none"
+                  className="text-xs text-muted-foreground/60 tabular-nums select-none"
                 >
                   {t("remaining", { remaining, limit: dailyLimit })}
                 </motion.span>
@@ -226,7 +227,9 @@ export default function TextBox({
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 4 }}
                     transition={{ duration: 0.2 }}
-                    className="text-xs text-muted-foreground/40 tabular-nums select-none"
+                    className="text-xs text-muted-foreground/60 tabular-nums select-none"
+                    aria-live="polite"
+                    aria-label={`${dream.length} characters`}
                   >
                     {dream.length}
                   </motion.span>
@@ -262,6 +265,7 @@ export default function TextBox({
                     whileTap={canSend ? { scale: 0.93 } : {}}
                     onClick={handleInterpret}
                     disabled={!canSend}
+                    aria-label={isLoading ? t("interpreting") : t("sendDream")}
                     className="relative flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-secondary px-4 py-1.5 text-xs font-medium text-primary-foreground shadow-md transition-opacity duration-200 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer overflow-hidden"
                   >
                     <AnimatePresence mode="wait">

@@ -19,6 +19,8 @@ export function LocaleSwitcher() {
         <button
           key={lang}
           onClick={() => switchTo(lang)}
+          aria-label={lang === "es" ? "Cambiar a Español" : "Switch to English"}
+          aria-pressed={locale === lang}
           className="relative z-10 w-10 py-1 cursor-pointer rounded-full"
         >
           {locale === lang && (

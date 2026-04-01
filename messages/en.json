@@ -25,7 +25,9 @@
     "rateLimitTitle": "Daily limit reached",
     "rateLimitDesc": "Upgrade to Premium for unlimited dream interpretations every day.",
     "rateLimitCta": "Upgrade to Premium",
-    "rateLimitDismiss": "Maybe later"
+    "rateLimitDismiss": "Maybe later",
+    "sendDream": "Interpret dream",
+    "switchToLanguage": "Switch to {lang}"
   },
   "Billing": {
     "title": "Your subscription",

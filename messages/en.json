@@ -27,6 +27,7 @@
     "rateLimitCta": "Upgrade to Premium",
     "rateLimitDismiss": "Maybe later",
     "sendDream": "Interpret dream",
+    "dreamDateLabel": "Dream date",
     "switchToLanguage": "Switch to {lang}",
     "apiError": "Something went wrong. Please try again.",
     "retry": "Try again",

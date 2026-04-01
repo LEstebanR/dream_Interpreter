@@ -27,6 +27,7 @@
     "rateLimitCta": "Actualizar a Premium",
     "rateLimitDismiss": "Quizás luego",
     "sendDream": "Interpretar sueño",
+    "dreamDateLabel": "Fecha del sueño",
     "switchToLanguage": "Cambiar a {lang}",
     "apiError": "Algo salió mal. Por favor intenta de nuevo.",
     "retry": "Intentar de nuevo",

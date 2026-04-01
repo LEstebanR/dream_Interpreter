@@ -1,7 +1,7 @@
 "use client";
 
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Send, Trash2, BookOpen, Check, Zap, AlertCircle, Info } from "lucide-react";
+import { Loader2, Send, Trash2, BookOpen, Check, Zap, AlertCircle, Info, CalendarDays } from "lucide-react";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
@@ -23,6 +23,8 @@ export default function TextBox({
   const [isFocused, setIsFocused] = useState(false);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
   const [savedEntryId, setSavedEntryId] = useState<string | null>(null);
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const [dreamDate, setDreamDate] = useState(todayStr);
   const [rateLimited, setRateLimited] = useState(false);
   const [apiError, setApiError] = useState(false);
   const [remaining, setRemaining] = useState<number | null>(null);
@@ -76,7 +78,7 @@ export default function TextBox({
       const res = await fetch("/api/journal", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ dreamText: dream, interpretation }),
+        body: JSON.stringify({ dreamText: dream, interpretation, dreamDate: dreamDate !== todayStr ? dreamDate : undefined }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -294,7 +296,7 @@ export default function TextBox({
                     transition={{ duration: 0.25, ease: "easeOut" }}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => { setInterpretation(""); setDream(""); setSaveState("idle"); setSavedEntryId(null); setRateLimited(false); setApiError(false); }}
+                    onClick={() => { setInterpretation(""); setDream(""); setSaveState("idle"); setSavedEntryId(null); setRateLimited(false); setApiError(false); setDreamDate(todayStr); }}
                     className="flex items-center gap-1.5 rounded-full border border-border px-3.5 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:border-primary/60 transition-colors duration-200 cursor-pointer"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -343,6 +345,33 @@ export default function TextBox({
                 )}
               </AnimatePresence>
             </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* date picker — shown when interpretation is ready and not yet saved */}
+          <AnimatePresence>
+            {interpretation && saveState !== "saved" && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.25 }}
+                className="overflow-hidden"
+              >
+                <div className="flex items-center gap-2 px-5 pb-3 pt-2 border-t border-border/40">
+                  <CalendarDays className="w-3.5 h-3.5 text-muted-foreground/50 shrink-0" />
+                  <label className="text-xs text-muted-foreground/50 shrink-0">
+                    {t("dreamDateLabel")}
+                  </label>
+                  <input
+                    type="date"
+                    value={dreamDate}
+                    max={todayStr}
+                    onChange={(e) => setDreamDate(e.target.value)}
+                    className="ml-auto text-xs text-muted-foreground bg-transparent border-0 outline-none cursor-pointer"
+                  />
+                </div>
               </motion.div>
             )}
           </AnimatePresence>

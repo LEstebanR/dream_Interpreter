@@ -108,7 +108,7 @@ export function JournalList({
           {/* Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {groupEntries.map((entry) => (
-              <DreamCard key={entry.id} entry={entry} locale={locale} />
+              <DreamCard key={entry.id} entry={entry} />
             ))}
           </div>
         </section>

@@ -5,11 +5,10 @@ import { Link } from "@/i18n/navigation";
 import { getMoodEmoji } from "@/lib/moods";
 import type { JournalEntry } from "@/types/journal";
 
-function formatDate(iso: string, locale: string) {
-  return new Date(iso).toLocaleDateString(locale === "es" ? "es-ES" : "en-US", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
+function formatTime(iso: string, locale: string) {
+  return new Date(iso).toLocaleTimeString(locale === "es" ? "es-ES" : "en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
   });
 }
 
@@ -43,8 +42,8 @@ export function DreamCard({
         {snippet}
       </p>
 
-      <p className="text-xs text-muted-foreground/60 mt-auto">
-        {formatDate(entry.createdAt, locale)}
+      <p className="text-xs text-muted-foreground/40 mt-auto tabular-nums">
+        {formatTime(entry.createdAt, locale)}
       </p>
     </Link>
   );

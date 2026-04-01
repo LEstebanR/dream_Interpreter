@@ -27,7 +27,10 @@
     "rateLimitCta": "Upgrade to Premium",
     "rateLimitDismiss": "Maybe later",
     "sendDream": "Interpret dream",
-    "switchToLanguage": "Switch to {lang}"
+    "switchToLanguage": "Switch to {lang}",
+    "apiError": "Something went wrong. Please try again.",
+    "retry": "Try again",
+    "tooltipText": "Describe what happened, who was there, where you were and how you felt..."
   },
   "Billing": {
     "title": "Your subscription",
@@ -149,6 +152,35 @@
     "profile": "My profile",
     "journal": "Dream journal",
     "billing": "Subscription",
-    "freePlan": "Free"
+    "freePlan": "Free",
+    "passwordMinLength": "Minimum 6 characters",
+    "passwordTooShort": "Password must be at least 6 characters"
+  },
+  "NotFound": {
+    "title": "Page not found",
+    "description": "The page you're looking for doesn't exist.",
+    "back": "Go home"
+  },
+  "ErrorPage": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred. Please try again.",
+    "retry": "Try again",
+    "back": "Go home"
+  },
+  "Onboarding": {
+    "title": "Welcome to OniricApp",
+    "subtitle": "Discover the meaning of your dreams with AI",
+    "howItWorksTitle": "How it works",
+    "step1Title": "Describe your dream",
+    "step1Desc": "Write what happened, who was there, how you felt",
+    "step2Title": "AI interprets it",
+    "step2Desc": "Our AI analyzes symbols and emotional patterns",
+    "premiumTitle": "Unlock Premium",
+    "premiumFeature1": "Unlimited interpretations per day",
+    "premiumFeature2": "Advanced AI model (Claude)",
+    "premiumFeature3": "Private dream journal",
+    "ctaRegister": "Create free account",
+    "ctaGuest": "Continue as guest",
+    "tooltipText": "Describe what happened, who was there, where you were and how you felt..."
   }
 }

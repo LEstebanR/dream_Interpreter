@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import TextBox from "./text-box";
+import { OnboardingModal } from "./onboarding-modal";
 
 function WordReveal({ text }: { text: string }) {
   const words = text.split(" ");
@@ -48,6 +49,7 @@ export function DreamSection({ subtitle }: { subtitle: string }) {
 
   return (
     <>
+      <OnboardingModal />
       {/* subtitle / interpretation */}
       <div
         className="w-full flex justify-center mt-2 opacity-0"

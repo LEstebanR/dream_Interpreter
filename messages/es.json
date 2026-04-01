@@ -27,7 +27,10 @@
     "rateLimitCta": "Actualizar a Premium",
     "rateLimitDismiss": "Quizás luego",
     "sendDream": "Interpretar sueño",
-    "switchToLanguage": "Cambiar a {lang}"
+    "switchToLanguage": "Cambiar a {lang}",
+    "apiError": "Algo salió mal. Por favor intenta de nuevo.",
+    "retry": "Intentar de nuevo",
+    "tooltipText": "Describe qué pasó, quién estaba, dónde estabas y cómo te sentiste..."
   },
   "Billing": {
     "title": "Tu suscripción",
@@ -149,6 +152,35 @@
     "profile": "Mi perfil",
     "journal": "Diario de sueños",
     "billing": "Suscripción",
-    "freePlan": "Gratis"
+    "freePlan": "Gratis",
+    "passwordMinLength": "Mínimo 6 caracteres",
+    "passwordTooShort": "La contraseña debe tener al menos 6 caracteres"
+  },
+  "NotFound": {
+    "title": "Página no encontrada",
+    "description": "La página que buscas no existe.",
+    "back": "Ir al inicio"
+  },
+  "ErrorPage": {
+    "title": "Algo salió mal",
+    "description": "Ocurrió un error inesperado. Por favor intenta de nuevo.",
+    "retry": "Intentar de nuevo",
+    "back": "Ir al inicio"
+  },
+  "Onboarding": {
+    "title": "Bienvenido a OniricApp",
+    "subtitle": "Descubre el significado de tus sueños con IA",
+    "howItWorksTitle": "Cómo funciona",
+    "step1Title": "Describe tu sueño",
+    "step1Desc": "Escribe qué pasó, quién estaba, cómo te sentiste",
+    "step2Title": "La IA lo interpreta",
+    "step2Desc": "Nuestra IA analiza símbolos y patrones emocionales",
+    "premiumTitle": "Desbloquea Premium",
+    "premiumFeature1": "Interpretaciones ilimitadas por día",
+    "premiumFeature2": "Modelo de IA avanzado (Claude)",
+    "premiumFeature3": "Diario de sueños privado",
+    "ctaRegister": "Crear cuenta gratis",
+    "ctaGuest": "Continuar como invitado",
+    "tooltipText": "Describe qué pasó, quién estaba, dónde estabas y cómo te sentiste..."
   }
 }

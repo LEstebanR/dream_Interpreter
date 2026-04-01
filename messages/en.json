@@ -41,7 +41,14 @@
     "manageSubscription": "Manage subscription",
     "loading": "Loading...",
     "successMessage": "Payment successful! You now have access to Premium.",
-    "canceledMessage": "Payment was canceled. You can try again whenever you're ready."
+    "canceledMessage": "Payment was canceled. You can try again whenever you're ready.",
+    "cancelSubscription": "Cancel subscription",
+    "cancelConfirmTitle": "Cancel subscription?",
+    "cancelConfirmDesc": "You'll keep Premium access until the end of your current billing period.",
+    "cancelConfirmYes": "Yes, cancel",
+    "cancelConfirmNo": "Keep Premium",
+    "cancelSuccess": "Subscription canceled. You'll keep Premium access until the end of the billing period.",
+    "cancelError": "Failed to cancel. Please try again or manage your subscription."
   },
   "Pricing": {
     "title": "Simple, transparent pricing",

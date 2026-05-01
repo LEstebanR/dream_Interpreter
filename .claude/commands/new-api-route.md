@@ -1,48 +1,46 @@
-Crea un nuevo API route en Next.js App Router siguiendo las convenciones del proyecto.
+Create a new API route in Next.js App Router following project conventions.
 
-## Argumentos
-$ARGUMENTS — descripción de la ruta a crear (ej: "POST /api/journal para guardar entrada del diario")
+## Arguments
+$ARGUMENTS — description of the route to create (e.g. "POST /api/journal to save a dream entry")
 
-## Pasos
+## Steps
 
-1. Lee `CLAUDE.md` para entender las convenciones del proyecto.
+1. Read `CLAUDE.md` to understand project conventions.
 
-2. Determina la ruta correcta dentro de `/app/api/` según lo solicitado.
+2. Determine the correct path under `/app/api/` based on the request.
 
-3. Crea el archivo `route.ts` con esta estructura base:
+3. Create the `route.ts` file with this base structure:
 
 ```ts
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 
-// Schema de validación
 const schema = z.object({
-  // campos según la ruta
+  // fields as needed
 })
 
 export async function POST(req: NextRequest) {
-  // 1. Auth check (si aplica)
-  const session = await getServerSession(authOptions)
+  // 1. Auth check (if applicable)
+  const session = await auth()
   if (!session?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // 2. Premium check (si aplica)
+  // 2. Premium check (if applicable)
   if (!session.user.isPremium) {
     return NextResponse.json({ error: 'Premium required' }, { status: 403 })
   }
 
-  // 3. Validar body
+  // 3. Validate body
   const body = await req.json()
   const parsed = schema.safeParse(body)
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
+    return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
   }
 
-  // 4. Lógica de negocio
+  // 4. Business logic
   try {
     // ...
     return NextResponse.json({ data: result })
@@ -53,14 +51,15 @@ export async function POST(req: NextRequest) {
 }
 ```
 
-4. Adapta la estructura según el método HTTP (GET no tiene body, usar `searchParams`).
+4. Adapt the structure for the HTTP method (GET uses `searchParams`, no body).
 
-5. Si la ruta requiere i18n, asegúrate de que el error message use `getTranslations()`.
+5. If the route needs i18n error messages, use `getTranslations()`.
 
-6. Verifica que no se exponga información sensible en las respuestas de error.
+6. Verify no sensitive data is exposed in error responses.
 
-## Convenciones
-- Siempre validar con `zod` antes de acceder a los datos
-- Siempre hacer auth check primero, luego premium check
-- Responder `{ error: string }` en errores, `{ data: T }` en éxito
-- Log de errores con prefijo `[NOMBRE_RUTA]` para facilitar debugging
+## Conventions
+- Always validate with `zod` before accessing data
+- Always do auth check first, then premium check
+- Return `{ error: string }` on errors, `{ data: T }` on success
+- Log errors with prefix `[ROUTE_NAME]` for easier debugging
+- Use `auth()` from `@/lib/auth` (NextAuth v5) — never `getServerSession(authOptions)`

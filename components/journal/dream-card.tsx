@@ -5,21 +5,7 @@ import { Link } from "@/i18n/navigation";
 import { getMoodEmoji } from "@/lib/moods";
 import type { JournalEntry } from "@/types/journal";
 
-function formatDate(iso: string, locale: string) {
-  return new Date(iso).toLocaleDateString(locale === "es" ? "es-ES" : "en-US", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
-
-export function DreamCard({
-  entry,
-  locale,
-}: {
-  entry: JournalEntry;
-  locale: string;
-}) {
+export function DreamCard({ entry }: { entry: JournalEntry }) {
   const t = useTranslations("Journal");
   const emoji = getMoodEmoji(entry.mood);
   const title = entry.title ?? t("noTitle");
@@ -43,9 +29,6 @@ export function DreamCard({
         {snippet}
       </p>
 
-      <p className="text-xs text-muted-foreground/60 mt-auto">
-        {formatDate(entry.createdAt, locale)}
-      </p>
     </Link>
   );
 }

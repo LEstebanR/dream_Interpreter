@@ -1,65 +1,65 @@
-Evalúa el último cambio realizado en el proyecto y actualiza CLAUDE.md y las skills si se aprendió algo relevante.
+Review the latest change and update CLAUDE.md and skills if something relevant was learned.
 
-## Qué hace esta skill
+## What this skill does
 
-Analiza el diff del último commit (o cambios actuales), extrae aprendizajes sobre patrones, convenciones y decisiones tomadas, y actualiza la documentación viva del proyecto para que futuros contextos de Claude sean más precisos.
+Analyzes the diff of the latest commit (or current changes), extracts learnings about patterns, conventions, and decisions made, and updates the project's living documentation so future Claude contexts are more accurate.
 
-## Pasos
+## Steps
 
-1. **Obtén contexto del último cambio** (ejecutar en paralelo):
-   - `git log --oneline -1` — commit más reciente
-   - `git diff HEAD~1 HEAD` — diff completo del último commit
-   - `git diff HEAD` — cambios no commiteados (si los hay)
+1. **Get context on the latest change** (run in parallel):
+   - `git log --oneline -1` — most recent commit
+   - `git diff HEAD~1 HEAD` — full diff of the last commit
+   - `git diff HEAD` — uncommitted changes (if any)
 
-2. **Lee los archivos de documentación actuales** (en paralelo):
+2. **Read the current documentation files** (in parallel):
    - `CLAUDE.md`
-   - `.claude/commands/` — lista todos los archivos de skills
+   - `.claude/commands/` — list all skill files
 
-3. **Analiza el cambio y responde estas preguntas:**
-   - ¿Se estableció algún patrón nuevo que no está en CLAUDE.md?
-   - ¿Se tomó una decisión de arquitectura importante?
-   - ¿Se descubrió una limitación o gotcha de alguna librería?
-   - ¿Alguna convención existente en CLAUDE.md quedó desactualizada?
-   - ¿Alguna skill necesita reflejar el nuevo patrón?
-   - ¿Se agregó una nueva dependencia que debería documentarse?
+3. **Analyze the change and answer these questions:**
+   - Was a new pattern established that isn't in CLAUDE.md?
+   - Was an important architectural decision made?
+   - Was a library limitation or gotcha discovered?
+   - Did any existing CLAUDE.md convention become outdated?
+   - Does any skill need to reflect the new pattern?
+   - Was a new dependency added that should be documented?
 
-4. **Actualiza CLAUDE.md** si hay algo nuevo que agregar o corregir:
-   - Nuevos patrones de código
-   - Decisiones de arquitectura tomadas
-   - Gotchas o cosas a evitar descubiertas en la práctica
-   - Nuevas variables de entorno
-   - Cambios en la estructura de carpetas
+4. **Update CLAUDE.md** if there's something new to add or correct:
+   - New code patterns
+   - Architectural decisions made
+   - Gotchas or things to avoid discovered in practice
+   - New environment variables
+   - Changes to the folder structure
 
-5. **Actualiza skills relevantes** en `.claude/commands/` si el cambio afecta el flujo de trabajo documentado allí.
+5. **Update relevant skills** in `.claude/commands/` if the change affects the documented workflow.
 
-6. **Presenta un resumen** con este formato:
+6. **Present a summary** in this format:
 
 ---
-### Retrospectiva: `<mensaje del commit>`
+### Retrospective: `<commit message>`
 
-**Qué se hizo:**
-<descripción breve>
+**What was done:**
+<brief description>
 
-**Aprendizajes:**
-- <aprendizaje 1>
-- <aprendizaje 2>
+**Learnings:**
+- <learning 1>
+- <learning 2>
 
-**Archivos de documentación actualizados:**
-- `CLAUDE.md` — <qué sección y por qué>
-- `.claude/commands/<skill>.md` — <qué cambió> (si aplica)
+**Documentation files updated:**
+- `CLAUDE.md` — <which section and why>
+- `.claude/commands/<skill>.md` — <what changed> (if applicable)
 
-**Sin cambios en documentación porque:**
-<razón si no se actualizó nada>
+**No documentation changes because:**
+<reason if nothing was updated>
 ---
 
-## Cuándo actualizar qué
+## When to update what
 
-| Situación | Acción |
+| Situation | Action |
 |-----------|--------|
-| Se usó un patrón nuevo para auth/premium | Actualizar sección "Patrones importantes" en CLAUDE.md |
-| Se agregó una dependencia nueva | Actualizar tabla de Stack en CLAUDE.md |
-| Se cambió estructura de carpetas | Actualizar sección "Estructura del proyecto" |
-| Se descubrió algo que NO hacer | Agregar a sección "Qué NO hacer" |
-| Se cambió cómo se crean API routes | Actualizar `new-api-route.md` |
-| Se cambió el schema de Prisma | Actualizar sección "Modelos de BD" y `db-migrate.md` |
-| Se cambió el flujo de commits | Actualizar `commit.md` |
+| New auth/premium pattern used | Update "Patrones importantes" section in CLAUDE.md |
+| New dependency added | Update Stack table in CLAUDE.md |
+| Folder structure changed | Update "Estructura del proyecto" section |
+| Something discovered that should NOT be done | Add to "Qué NO hacer" section |
+| How API routes are created changed | Update `new-api-route.md` |
+| Prisma schema changed | Update "Modelos de BD" and `db-migrate.md` |
+| Commit flow changed | Update `commit.md` |

@@ -157,8 +157,12 @@ export function ProfileForm({
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder={t("newPassword")}
+              minLength={8}
               className="w-full rounded-xl border border-border bg-background/90 px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/40 transition-colors"
             />
+            {newPassword.length > 0 && newPassword.length < 8 && (
+              <p className="text-xs text-destructive -mt-1">{t("passwordTooShort")}</p>
+            )}
           </div>
         </>
       )}

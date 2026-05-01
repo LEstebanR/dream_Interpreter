@@ -7,6 +7,43 @@ import { Loader2 } from "lucide-react";
 import { DreamCard } from "./dream-card";
 import type { JournalEntry } from "@/types/journal";
 
+function groupEntriesByDate(
+  entries: JournalEntry[],
+  locale: string,
+  labelToday: string,
+  labelYesterday: string
+): { label: string; entries: JournalEntry[] }[] {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const yesterday = today - 86_400_000;
+
+  const groups: Map<string, JournalEntry[]> = new Map();
+
+  for (const entry of entries) {
+    const d = new Date(entry.createdAt);
+    const entryDay = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+
+    let label: string;
+    if (entryDay === today) {
+      label = labelToday;
+    } else if (entryDay === yesterday) {
+      label = labelYesterday;
+    } else {
+      label = d.toLocaleDateString(locale === "es" ? "es-ES" : "en-US", {
+        month: "long",
+        year: "numeric",
+      });
+      // Capitalize first letter (some locales return lowercase month)
+      label = label.charAt(0).toUpperCase() + label.slice(1);
+    }
+
+    if (!groups.has(label)) groups.set(label, []);
+    groups.get(label)!.push(entry);
+  }
+
+  return Array.from(groups.entries()).map(([label, entries]) => ({ label, entries }));
+}
+
 export function JournalList({
   initialEntries,
   initialHasMore,
@@ -54,16 +91,31 @@ export function JournalList({
     );
   }
 
+  const groups = groupEntriesByDate(entries, locale, t("dateToday"), t("dateYesterday"));
+
   return (
-    <div className="flex flex-col gap-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {entries.map((entry) => (
-          <DreamCard key={entry.id} entry={entry} locale={locale} />
-        ))}
-      </div>
+    <div className="flex flex-col gap-8">
+      {groups.map(({ label, entries: groupEntries }) => (
+        <section key={label}>
+          {/* Date group header */}
+          <div className="flex items-center gap-3 mb-3">
+            <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/60 shrink-0">
+              {label}
+            </h2>
+            <div className="h-px flex-1 bg-border/60" />
+          </div>
+
+          {/* Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {groupEntries.map((entry) => (
+              <DreamCard key={entry.id} entry={entry} />
+            ))}
+          </div>
+        </section>
+      ))}
 
       {hasMore && (
-        <div className="flex justify-center">
+        <div className="flex justify-center pt-2">
           <button
             onClick={loadMore}
             disabled={loading}

@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
+import type { AdapterUser } from "@auth/core/adapters";
 import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 import { z } from "zod";
@@ -11,8 +12,20 @@ const credentialsSchema = z.object({
   password: z.string().min(6),
 });
 
+const baseAdapter = PrismaAdapter(prisma);
+
+// Override createUser to link OAuth accounts to existing email/password users
+const adapter = {
+  ...baseAdapter,
+  async createUser(user: AdapterUser) {
+    const existing = await prisma.user.findUnique({ where: { email: user.email } });
+    if (existing) return existing as AdapterUser;
+    return baseAdapter.createUser!(user);
+  },
+};
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  adapter: PrismaAdapter(prisma),
+  adapter,
   secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
   session: { strategy: "jwt" },
   pages: {
@@ -47,7 +60,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async jwt({ token, user, trigger, session }) {
       if (user) {
-        token.id = user.id;
+        token.id = user.id!;
         token.isPremium = (user as { isPremium?: boolean }).isPremium ?? false;
         // Store image URL in JWT to avoid extra DB queries, but cap to avoid 431 errors
         token.picture = (user as { image?: string | null }).image ?? null;
@@ -61,8 +74,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       if (token) {
         session.user.id = token.id as string;
-        session.user.isPremium = token.isPremium as boolean;
         if (token.picture) session.user.image = token.picture as string;
+        // Always read isPremium fresh from DB to avoid stale JWT after Stripe webhook
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { isPremium: true },
+        });
+        session.user.isPremium = dbUser?.isPremium ?? false;
       }
       return session;
     },

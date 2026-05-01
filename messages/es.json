@@ -27,7 +27,11 @@
     "rateLimitCta": "Actualizar a Premium",
     "rateLimitDismiss": "Quizás luego",
     "sendDream": "Interpretar sueño",
-    "switchToLanguage": "Cambiar a {lang}"
+    "dreamDateLabel": "Fecha del sueño",
+    "switchToLanguage": "Cambiar a {lang}",
+    "apiError": "Algo salió mal. Por favor intenta de nuevo.",
+    "retry": "Intentar de nuevo",
+    "tooltipText": "Describe qué pasó, quién estaba, dónde estabas y cómo te sentiste..."
   },
   "Billing": {
     "title": "Tu suscripción",
@@ -38,7 +42,14 @@
     "manageSubscription": "Gestionar suscripción",
     "loading": "Cargando...",
     "successMessage": "¡Pago exitoso! Ya tienes acceso a Premium.",
-    "canceledMessage": "El pago fue cancelado. Puedes intentarlo de nuevo cuando quieras."
+    "canceledMessage": "El pago fue cancelado. Puedes intentarlo de nuevo cuando quieras.",
+    "cancelSubscription": "Cancelar suscripción",
+    "cancelConfirmTitle": "¿Cancelar suscripción?",
+    "cancelConfirmDesc": "Mantendrás acceso Premium hasta el final de tu período de facturación actual.",
+    "cancelConfirmYes": "Sí, cancelar",
+    "cancelConfirmNo": "Mantener Premium",
+    "cancelSuccess": "Suscripción cancelada. Mantendrás acceso Premium hasta el final del período de facturación.",
+    "cancelError": "No se pudo cancelar. Inténtalo de nuevo o gestiona tu suscripción."
   },
   "Pricing": {
     "title": "Planes simples y transparentes",
@@ -90,6 +101,8 @@
     "loadMore": "Cargar más",
     "loading": "Cargando...",
     "noTitle": "Sueño sin título",
+    "dateToday": "Hoy",
+    "dateYesterday": "Ayer",
     "detail": {
       "dreamLabel": "Tu sueño",
       "interpretationLabel": "Interpretación",
@@ -149,6 +162,108 @@
     "profile": "Mi perfil",
     "journal": "Diario de sueños",
     "billing": "Suscripción",
-    "freePlan": "Gratis"
+    "freePlan": "Gratis",
+    "passwordMinLength": "Mínimo 8 caracteres",
+    "passwordTooShort": "La contraseña debe tener al menos 8 caracteres",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "forgotPasswordTitle": "¿Olvidaste tu contraseña?",
+    "forgotPasswordSubtitle": "Ingresa tu correo y te enviaremos un enlace para restablecerla.",
+    "forgotPasswordSent": "Revisa tu bandeja de entrada",
+    "forgotPasswordSentDesc": "Si tu cuenta existe, recibirás un enlace de restablecimiento en breve.",
+    "forgotPasswordError": "Algo salió mal. Por favor intenta de nuevo.",
+    "sendResetLink": "Enviar enlace",
+    "sending": "Enviando...",
+    "backToSignIn": "Volver al inicio de sesión",
+    "resetPasswordTitle": "Crear nueva contraseña",
+    "resetPasswordSubtitle": "Ingresa tu nueva contraseña a continuación.",
+    "resetPassword": "Restablecer contraseña",
+    "resetPasswordSuccess": "¡Contraseña actualizada! Inicia sesión con tu nueva contraseña.",
+    "resetPasswordError": "Algo salió mal. Por favor intenta de nuevo.",
+    "resetTokenExpired": "Este enlace expiró. Por favor solicita uno nuevo.",
+    "newPassword": "Nueva contraseña",
+    "saving": "Guardando..."
+  },
+  "NotFound": {
+    "title": "Página no encontrada",
+    "description": "La página que buscas no existe.",
+    "back": "Ir al inicio"
+  },
+  "ErrorPage": {
+    "title": "Algo salió mal",
+    "description": "Ocurrió un error inesperado. Por favor intenta de nuevo.",
+    "retry": "Intentar de nuevo",
+    "back": "Ir al inicio"
+  },
+  "Legal": {
+    "privacyLink": "Privacidad",
+    "termsLink": "Términos",
+    "supportLink": "Soporte",
+    "privacy": {
+      "title": "Política de Privacidad",
+      "updated": "Última actualización: mayo 2026",
+      "intro": "OniricApp toma en serio tu privacidad. Esta política describe qué datos recopilamos, cómo los usamos y con quién los compartimos.",
+      "s1Title": "1. Datos que recopilamos",
+      "s1Body": "Recopilamos tu nombre y dirección de correo electrónico al crear una cuenta; el contenido de los sueños que ingresas para ser interpretados; y datos de pago procesados directamente por Stripe (nunca almacenamos datos de tarjetas de crédito).",
+      "s2Title": "2. Cómo usamos tus datos",
+      "s2Body": "Usamos tus datos para autenticar tu sesión, enviar tus sueños al modelo de IA de OpenRouter para generar interpretaciones, procesar pagos a través de Stripe, y enviarte emails transaccionales como recuperación de contraseña vía Resend.",
+      "s3Title": "3. Terceros",
+      "s3Body": "Compartimos datos con: Stripe (pagos), OpenRouter (inferencia de IA), Google (OAuth), Resend (emails), Vercel (alojamiento) y Neon (base de datos). Cada uno opera bajo sus propias políticas de privacidad.",
+      "s4Title": "4. Retención y eliminación",
+      "s4Body": "Puedes solicitar la eliminación de tu cuenta y todos tus datos escribiendo a leramirezca@gmail.com. Los datos se eliminan dentro de los 30 días siguientes a la solicitud.",
+      "s5Title": "5. Seguridad",
+      "s5Body": "Todas las comunicaciones están cifradas con TLS. Las contraseñas se almacenan con hash bcrypt. Los tokens de sesión son gestionados por NextAuth v5.",
+      "s6Title": "6. Contacto",
+      "s6Body": "Para preguntas sobre esta política, contáctanos en leramirezca@gmail.com."
+    },
+    "terms": {
+      "title": "Términos de Servicio",
+      "updated": "Última actualización: mayo 2026",
+      "intro": "Al usar OniricApp aceptas estos términos. Por favor léelos con atención antes de utilizar el servicio.",
+      "s1Title": "1. Descripción del servicio",
+      "s1Body": "OniricApp es una plataforma de interpretación de sueños asistida por inteligencia artificial. Las interpretaciones son generadas por modelos de IA y tienen carácter informativo y de entretenimiento.",
+      "s2Title": "2. Plan Premium",
+      "s2Body": "El plan Premium se factura mensualmente y se renueva automáticamente hasta que lo canceles. Puedes cancelar en cualquier momento desde tu perfil → Suscripción; mantendrás el acceso hasta el final del período pagado. No ofrecemos reembolsos por períodos parciales.",
+      "s3Title": "3. Uso aceptable",
+      "s3Body": "Está prohibido usar el servicio para generar contenido dañino, realizar scraping automatizado o intentar comprometer la seguridad de la plataforma.",
+      "s4Title": "4. Aviso importante",
+      "s4Body": "Las interpretaciones de OniricApp no constituyen asesoramiento médico, psicológico ni diagnóstico clínico. Si experimentas problemas de sueño o salud mental, consulta a un profesional de la salud.",
+      "s5Title": "5. Limitación de responsabilidad",
+      "s5Body": "OniricApp se proporciona «tal cual». No garantizamos exactitud en las interpretaciones ni disponibilidad continua del servicio. Nuestra responsabilidad máxima se limita al monto pagado en los últimos 12 meses.",
+      "s6Title": "6. Contacto",
+      "s6Body": "Para preguntas sobre estos términos, contáctanos en leramirezca@gmail.com."
+    }
+  },
+  "Support": {
+    "title": "Centro de Soporte",
+    "subtitle": "Respuestas a las preguntas más frecuentes",
+    "contactTitle": "¿Necesitas más ayuda?",
+    "contactDesc": "¿No encontraste lo que buscabas? Escríbenos directamente.",
+    "contactCta": "Enviar email",
+    "q1": "¿Cómo funciona la interpretación con IA?",
+    "a1": "Describes tu sueño en el campo de texto y nuestro modelo de IA lo analiza desde una perspectiva psicoanalítica. El modelo identifica símbolos, emociones y patrones para generar una interpretación personalizada. Los usuarios Premium acceden al modelo Claude de Anthropic, que ofrece mayor profundidad y precisión.",
+    "q2": "¿Qué diferencia hay entre el plan Free y Premium?",
+    "a2": "El plan Free permite 3 interpretaciones por día sin cuenta (5 si estás registrado) con el modelo básico. El plan Premium ofrece interpretaciones ilimitadas con el modelo Claude de Anthropic, acceso al diario de sueños privado e historial completo.",
+    "q3": "¿Cómo cancelo mi suscripción Premium?",
+    "a3": "Ve a tu perfil → Suscripción → Cancelar suscripción. También puedes gestionar el pago directamente en el portal de Stripe. Mantendrás el acceso Premium hasta el final del período de facturación actual.",
+    "q4": "¿Cómo restablezco mi contraseña?",
+    "a4": "En la pantalla de inicio de sesión, haz clic en «¿Olvidaste tu contraseña?». Ingresa tu email y recibirás un enlace de restablecimiento válido por 1 hora. Si iniciaste sesión con Google, no tienes una contraseña que restablecer.",
+    "q5": "¿Mis sueños son privados?",
+    "a5": "Sí. El contenido de tus sueños se envía a los modelos de IA únicamente para generar la interpretación y no se usa para entrenar modelos. Las entradas guardadas en tu diario son visibles solo para ti."
+  },
+  "Onboarding": {
+    "title": "Bienvenido a OniricApp",
+    "subtitle": "Descubre el significado de tus sueños con IA",
+    "howItWorksTitle": "Cómo funciona",
+    "step1Title": "Describe tu sueño",
+    "step1Desc": "Escribe qué pasó, quién estaba, cómo te sentiste",
+    "step2Title": "La IA lo interpreta",
+    "step2Desc": "Nuestra IA analiza símbolos y patrones emocionales",
+    "premiumTitle": "Desbloquea Premium",
+    "premiumFeature1": "Interpretaciones ilimitadas por día",
+    "premiumFeature2": "Modelo de IA avanzado (Claude)",
+    "premiumFeature3": "Diario de sueños privado",
+    "ctaRegister": "Crear cuenta gratis",
+    "ctaGuest": "Continuar como invitado",
+    "tooltipText": "Describe qué pasó, quién estaba, dónde estabas y cómo te sentiste..."
   }
 }

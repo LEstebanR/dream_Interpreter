@@ -48,6 +48,7 @@ export async function GET(req: Request) {
 const postSchema = z.object({
   dreamText: z.string().min(1).max(5000),
   interpretation: z.string().min(1),
+  dreamDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
 });
 
 export async function POST(req: Request) {
@@ -65,11 +66,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid data" }, { status: 400 });
   }
 
+  const createdAt = parsed.data.dreamDate
+    ? new Date(`${parsed.data.dreamDate}T12:00:00`)
+    : undefined;
+
   const entry = await prisma.dreamEntry.create({
     data: {
       userId: session.user.id,
       dreamText: parsed.data.dreamText,
       interpretation: parsed.data.interpretation,
+      ...(createdAt && { createdAt }),
     },
   });
 

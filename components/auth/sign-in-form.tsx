@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { useState, useEffect } from "react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
@@ -15,9 +15,15 @@ const GoogleIcon = () => (
   </svg>
 );
 
-export function SignInForm({ locale }: { locale: string }) {
+export function SignInForm({ locale, resetSuccess }: { locale: string; resetSuccess?: boolean }) {
   const t = useTranslations("Auth");
   const router = useRouter();
+  const { status } = useSession();
+
+  useEffect(() => {
+    if (status === "authenticated") router.push(`/${locale}`);
+  }, [status, locale, router]);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -42,6 +48,11 @@ export function SignInForm({ locale }: { locale: string }) {
 
   return (
     <div className="flex flex-col gap-3">
+      {resetSuccess && (
+        <p className="rounded-xl border border-primary/30 bg-primary/5 px-4 py-2.5 text-center text-xs text-primary">
+          {t("resetPasswordSuccess")}
+        </p>
+      )}
       {/* Google */}
       <button
         onClick={() => signIn("google", { callbackUrl: `/${locale}` })}
@@ -76,6 +87,14 @@ export function SignInForm({ locale }: { locale: string }) {
           className="w-full rounded-xl border border-border bg-background/90 px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/40 transition-colors"
         />
         {error && <p className="text-xs text-destructive">{error}</p>}
+        <div className="flex justify-end">
+          <a
+            href={`/${locale}/forgot-password`}
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {t("forgotPassword")}
+          </a>
+        </div>
         <button
           type="submit"
           disabled={loading}

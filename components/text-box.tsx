@@ -1,7 +1,8 @@
 "use client";
 
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Send, Trash2, BookOpen, Check, Zap } from "lucide-react";
+import { Loader2, Send, Trash2, BookOpen, Check, Zap, AlertCircle, Info, CalendarDays } from "lucide-react";
+import { Tooltip } from "@/components/ui/tooltip";
 import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
@@ -22,7 +23,10 @@ export default function TextBox({
   const [isFocused, setIsFocused] = useState(false);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
   const [savedEntryId, setSavedEntryId] = useState<string | null>(null);
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const [dreamDate, setDreamDate] = useState(todayStr);
   const [rateLimited, setRateLimited] = useState(false);
+  const [apiError, setApiError] = useState(false);
   const [remaining, setRemaining] = useState<number | null>(null);
   const [dailyLimit, setDailyLimit] = useState<number | null>(null);
   const t = useTranslations("TextBox");
@@ -36,6 +40,7 @@ export default function TextBox({
     if (!dream.trim()) return;
     setIsLoading(true);
     setRateLimited(false);
+    setApiError(false);
     try {
       const response = await fetch("/api/interpret", {
         method: "POST",
@@ -55,6 +60,7 @@ export default function TextBox({
       }
     } catch (error) {
       console.error("Error:", error);
+      setApiError(true);
     } finally {
       setIsLoading(false);
     }
@@ -72,7 +78,7 @@ export default function TextBox({
       const res = await fetch("/api/journal", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ dreamText: dream, interpretation }),
+        body: JSON.stringify({ dreamText: dream, interpretation, dreamDate: dreamDate !== todayStr ? dreamDate : undefined }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -137,6 +143,34 @@ export default function TextBox({
                   {t("rateLimitDismiss")}
                 </button>
               </motion.div>
+            ) : apiError ? (
+              <motion.div
+                key="api-error"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className="flex flex-col items-center justify-center gap-3 px-6 py-8 text-center min-h-[8rem]"
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10">
+                  <AlertCircle className="w-5 h-5 text-destructive" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm font-semibold">{t("apiError")}</p>
+                </div>
+                <button
+                  onClick={() => { setApiError(false); handleInterpret(); }}
+                  className="mt-1 rounded-full bg-gradient-to-r from-primary to-secondary px-5 py-2 text-xs font-medium text-primary-foreground shadow-md hover:opacity-90 transition-opacity cursor-pointer"
+                >
+                  {t("retry")}
+                </button>
+                <button
+                  onClick={() => setApiError(false)}
+                  className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors cursor-pointer"
+                >
+                  {t("rateLimitDismiss")}
+                </button>
+              </motion.div>
             ) : (
               <motion.div
                 key="textarea-area"
@@ -177,9 +211,9 @@ export default function TextBox({
             )}
           </AnimatePresence>
 
-          {/* footer row — hidden when rate limit CTA is shown */}
+          {/* footer row — hidden when rate limit CTA or api error is shown */}
           <AnimatePresence>
-            {!rateLimited && (
+            {!rateLimited && !apiError && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -219,6 +253,20 @@ export default function TextBox({
                 >
                   {t("remaining", { remaining, limit: dailyLimit })}
                 </motion.span>
+              ) : dream.length === 0 && !interpretation ? (
+                <motion.span
+                  key="info-tooltip"
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 4 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Tooltip content={t("tooltipText")} side="top">
+                    <span className="flex items-center gap-1 text-xs text-muted-foreground/40 cursor-default select-none">
+                      <Info className="w-3 h-3" />
+                    </span>
+                  </Tooltip>
+                </motion.span>
               ) : (
                 dream.length > 0 && (
                   <motion.span
@@ -248,7 +296,7 @@ export default function TextBox({
                     transition={{ duration: 0.25, ease: "easeOut" }}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => { setInterpretation(""); setDream(""); setSaveState("idle"); setSavedEntryId(null); setRateLimited(false); }}
+                    onClick={() => { setInterpretation(""); setDream(""); setSaveState("idle"); setSavedEntryId(null); setRateLimited(false); setApiError(false); setDreamDate(todayStr); }}
                     className="flex items-center gap-1.5 rounded-full border border-border px-3.5 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:border-primary/60 transition-colors duration-200 cursor-pointer"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -297,6 +345,33 @@ export default function TextBox({
                 )}
               </AnimatePresence>
             </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* date picker — shown when interpretation is ready and not yet saved */}
+          <AnimatePresence>
+            {interpretation && saveState !== "saved" && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.25 }}
+                className="overflow-hidden"
+              >
+                <div className="flex items-center gap-2 px-5 pb-3 pt-2 border-t border-border/40">
+                  <CalendarDays className="w-3.5 h-3.5 text-muted-foreground/50 shrink-0" />
+                  <label className="text-xs text-muted-foreground/50 shrink-0">
+                    {t("dreamDateLabel")}
+                  </label>
+                  <input
+                    type="date"
+                    value={dreamDate}
+                    max={todayStr}
+                    onChange={(e) => setDreamDate(e.target.value)}
+                    className="ml-auto text-xs text-muted-foreground bg-transparent border-0 outline-none cursor-pointer"
+                  />
+                </div>
               </motion.div>
             )}
           </AnimatePresence>

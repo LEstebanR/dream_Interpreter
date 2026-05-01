@@ -7,7 +7,7 @@ Contexto del proyecto para Claude Code. Léelo completo antes de tocar código.
 App web de interpretación de sueños con IA. Usuarios anónimos pueden interpretar sueños gratis (modelo básico, limitado). Usuarios premium tienen acceso al diario de sueños, modelo IA superior e interpretaciones ilimitadas.
 
 **URL producción:** configurada en `NEXT_PUBLIC_APP_URL`
-**Linear:** https://linear.app/lesteban/project/dream-interpreter-mvp-7db6ffb3f537
+**Linear:** https://linear.app/lesteban/project/dream-interpreter-mvp-7db6ffb3f537 (proyecto Oniricapp)
 
 ---
 
@@ -330,6 +330,19 @@ Usar `VerificationToken` de Prisma + Resend para el flujo de recuperación:
 - Solo funciona con cuentas que tienen `password` (no OAuth-only).
 - Usar `prisma.verificationToken.deleteMany({ where: { identifier: email } })` antes de crear nuevo token para evitar duplicados.
 
+### Auth guard en middleware — getToken, no auth()
+El middleware corre en Edge Runtime (sin acceso a TCP/Prisma). Usar `getToken` de `next-auth/jwt` para verificar sesión sin activar el callback `session` (que hace query a BD):
+```ts
+import { getToken } from 'next-auth/jwt';
+
+const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+const isAuthenticated = !!token;
+```
+Nunca usar `auth()` directamente en `middleware.ts` cuando el callback `session` hace queries a BD — causa cierre de sesión inesperado en Edge.
+
+Las rutas `AUTH_ROUTES` (`/sign-in`, `/sign-up`, `/forgot-password`, `/reset-password`) redirigen al home si hay sesión.
+Las rutas `PROTECTED_ROUTES` (`/journal`, `/profile`, `/billing`) redirigen a `/sign-in` si no hay sesión.
+
 ### Resend — singleton igual que Prisma/Stripe
 ```ts
 // lib/email.ts
@@ -359,3 +372,4 @@ El `from:` debe usar un dominio verificado en Resend. En producción configurar 
 - No usar `export const config = { api: { bodyParser: false } }` en App Router — obsoleto, genera warning; en App Router el raw body se lee con `req.text()` directamente
 - No usar el Product ID (`prod_xxx`) como `NEXT_PUBLIC_STRIPE_PRICE_ID` — debe ser el Price ID (`price_xxx`)
 - No usar `NEXT_PUBLIC_APP_URL` para las URLs de redirect en Stripe Checkout — usar el `origin` del request para que funcione igual en local y producción
+- No usar `auth()` de NextAuth v5 en `middleware.ts` cuando el callback `session` hace queries a BD — el middleware corre en Edge Runtime sin TCP; usar `getToken` de `next-auth/jwt` en su lugar

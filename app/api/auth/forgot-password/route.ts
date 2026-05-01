@@ -30,9 +30,14 @@ export async function POST(req: Request) {
     const origin = req.headers.get("origin") ?? process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
     const resetUrl = `${origin}/es/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
 
-    await resend.emails.send({
-      from: "OniricApp <noreply@oniricapp.com>",
-      to: email,
+    const from =
+      process.env.NODE_ENV === "production"
+        ? "OniricApp <noreply@oniricapp.com>"
+        : "OniricApp <onboarding@resend.dev>";
+
+    const { error: emailError } = await resend.emails.send({
+      from,
+      to: process.env.NODE_ENV === "production" ? email : "lesteban.dev@gmail.com",
       subject: "Recupera tu contraseña / Reset your password",
       html: `
         <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
@@ -45,6 +50,8 @@ export async function POST(req: Request) {
         </div>
       `,
     });
+
+    if (emailError) console.error("[forgot-password] Resend error:", emailError);
   }
 
   return NextResponse.json({ ok: true });

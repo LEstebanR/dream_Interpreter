@@ -180,7 +180,8 @@
     "resetPasswordSuccess": "¡Contraseña actualizada! Inicia sesión con tu nueva contraseña.",
     "resetPasswordError": "Algo salió mal. Por favor intenta de nuevo.",
     "resetTokenExpired": "Este enlace expiró. Por favor solicita uno nuevo.",
-    "newPassword": "Nueva contraseña"
+    "newPassword": "Nueva contraseña",
+    "saving": "Guardando..."
   },
   "NotFound": {
     "title": "Página no encontrada",

@@ -8,7 +8,7 @@ const patchSchema = z.object({
   name: z.string().min(1).max(100).optional(),
   image: z.string().optional(),
   currentPassword: z.string().optional(),
-  newPassword: z.string().min(6).optional(),
+  newPassword: z.string().min(8).optional(),
 });
 
 export async function PATCH(req: Request) {

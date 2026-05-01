@@ -94,10 +94,10 @@ export function SignUpForm({ locale }: { locale: string }) {
           onChange={(e) => setPassword(e.target.value)}
           onBlur={() => setPasswordTouched(true)}
           required
-          minLength={6}
+          minLength={8}
           className="w-full rounded-xl border border-border bg-background/90 px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/40 transition-colors"
         />
-        {passwordTouched && password.length > 0 && password.length < 6 && (
+        {passwordTouched && password.length > 0 && password.length < 8 && (
           <p className="text-xs text-destructive -mt-1">{t("passwordTooShort")}</p>
         )}
         {!passwordTouched && (

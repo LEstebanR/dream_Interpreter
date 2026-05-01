@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 const schema = z.object({
   email: z.string().email(),
   token: z.string().min(1),
-  password: z.string().min(6),
+  password: z.string().min(8),
 });
 
 export async function POST(req: Request) {

@@ -96,7 +96,7 @@ App web de interpretación de sueños con IA. Usuarios anónimos pueden interpre
   schema.prisma           # modelos: User, Account, Session, VerificationToken, DreamEntry
 /types
   next-auth.d.ts          # extensiones de tipos: session.user.id, session.user.isPremium
-middleware.ts             # next-intl locale routing
+proxy.ts                  # auth guard + next-intl locale routing (Next.js 16: "middleware" → "proxy")
 ```
 
 ---
@@ -338,7 +338,7 @@ import { getToken } from 'next-auth/jwt';
 const token = await getToken({ req, secret: process.env.AUTH_SECRET });
 const isAuthenticated = !!token;
 ```
-Nunca usar `auth()` directamente en `middleware.ts` cuando el callback `session` hace queries a BD — causa cierre de sesión inesperado en Edge.
+Nunca usar `auth()` directamente en `proxy.ts` cuando el callback `session` hace queries a BD — causa cierre de sesión inesperado en Edge.
 
 Las rutas `AUTH_ROUTES` (`/sign-in`, `/sign-up`, `/forgot-password`, `/reset-password`) redirigen al home si hay sesión.
 Las rutas `PROTECTED_ROUTES` (`/journal`, `/profile`, `/billing`) redirigen a `/sign-in` si no hay sesión.
@@ -372,4 +372,4 @@ El `from:` debe usar un dominio verificado en Resend. En producción configurar 
 - No usar `export const config = { api: { bodyParser: false } }` en App Router — obsoleto, genera warning; en App Router el raw body se lee con `req.text()` directamente
 - No usar el Product ID (`prod_xxx`) como `NEXT_PUBLIC_STRIPE_PRICE_ID` — debe ser el Price ID (`price_xxx`)
 - No usar `NEXT_PUBLIC_APP_URL` para las URLs de redirect en Stripe Checkout — usar el `origin` del request para que funcione igual en local y producción
-- No usar `auth()` de NextAuth v5 en `middleware.ts` cuando el callback `session` hace queries a BD — el middleware corre en Edge Runtime sin TCP; usar `getToken` de `next-auth/jwt` en su lugar
+- No usar `auth()` de NextAuth v5 en `proxy.ts` cuando el callback `session` hace queries a BD — el middleware corre en Edge Runtime sin TCP; usar `getToken` de `next-auth/jwt` en su lugar

@@ -12,7 +12,7 @@ const AUTH_ROUTES = ['/sign-in', '/sign-up', '/forgot-password', '/reset-passwor
 // Rutas protegidas: requieren sesión activa
 const PROTECTED_ROUTES = ['/journal', '/profile', '/billing'];
 
-export default async function middleware(req: NextRequest) {
+export default async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Quitar el prefijo de locale (/es o /en) para comparar rutas

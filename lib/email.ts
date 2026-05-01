@@ -1,8 +1,13 @@
 import { Resend } from "resend";
 
-const globalForResend = globalThis as unknown as { resend: Resend };
+let _resend: Resend | null = null;
 
-export const resend =
-  globalForResend.resend ?? new Resend(process.env.RESEND_API_KEY!);
-
-if (process.env.NODE_ENV !== "production") globalForResend.resend = resend;
+export function getResend(): Resend {
+  if (!_resend) {
+    if (!process.env.RESEND_API_KEY) {
+      throw new Error("Missing RESEND_API_KEY environment variable");
+    }
+    _resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return _resend;
+}

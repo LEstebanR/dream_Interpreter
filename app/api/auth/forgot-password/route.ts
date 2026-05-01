@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
-import { resend } from "@/lib/email";
+import { getResend } from "@/lib/email";
 
 const schema = z.object({ email: z.string().email() });
 
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
         ? "OniricApp <noreply@oniricapp.com>"
         : "OniricApp <onboarding@resend.dev>";
 
-    const { error: emailError } = await resend.emails.send({
+    const { error: emailError } = await getResend().emails.send({
       from,
       to: process.env.NODE_ENV === "production" ? email : "lesteban.dev@gmail.com",
       subject: "Recupera tu contraseña / Reset your password",

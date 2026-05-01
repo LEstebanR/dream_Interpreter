@@ -1,32 +1,31 @@
 ---
 name: branch
 description: >-
-  Crea una rama git para un issue de Linear siguiendo la convención del
-  proyecto: leramirezca/{issue-id-lowercase}-{slug}. Parte siempre desde
-  develop actualizado.
+  Creates a git branch for a Linear issue following the project convention:
+  leramirezca/{issue-id-lowercase}-{slug}. Always starts from an updated develop.
 ---
 
-## Convención de nombrado
+## Branch naming convention
 
-El formato es exactamente el mismo que genera Linear en el campo `gitBranchName`:
+The format matches exactly what Linear generates in the `gitBranchName` field:
 
 ```
-leramirezca/{issue-id-lowercase}-{slug-del-titulo}
+leramirezca/{issue-id-lowercase}-{slug-from-title}
 ```
 
-Ejemplos:
-- `leramirezca/les-121-seguridad-aumentar-longitud-minima-de-contrasena-a-8`
-- `leramirezca/les-99-security-validacion-zod-ausente-en-el-body-de-apiinterpret`
+Examples:
+- `leramirezca/les-121-security-increase-minimum-password-length-to-8`
+- `leramirezca/les-99-security-missing-zod-validation-in-api-interpret`
 
-## Pasos
+## Steps
 
-### 1. Obtener el nombre de rama desde Linear
+### 1. Get the branch name from Linear
 
-Usa `mcp__linear-server__get_issue` con el ID del issue (ej. `LES-121`).
-Lee el campo `gitBranchName` de la respuesta — ese es el nombre exacto a usar.
-No generes el slug manualmente; confía en el campo de Linear.
+Use `mcp__linear-server__get_issue` with the issue ID (e.g. `LES-121`).
+Read the `gitBranchName` field from the response — that is the exact name to use.
+Do not generate the slug manually; trust Linear's field.
 
-### 2. Actualizar develop y crear la rama
+### 2. Update develop and create the branch
 
 ```bash
 git checkout develop
@@ -34,6 +33,6 @@ git pull origin develop
 git checkout -b {gitBranchName}
 ```
 
-### 3. Confirmar
+### 3. Confirm
 
-Muestra al usuario en qué rama quedó y cuál es el issue que resolverá.
+Tell the user which branch they're on and which issue it will resolve.

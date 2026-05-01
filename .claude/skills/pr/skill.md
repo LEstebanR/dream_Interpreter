@@ -1,73 +1,75 @@
 ---
 name: pr
 description: >-
-  Crea un Pull Request en GitHub apuntando a develop, con título y descripción
-  estandarizados, vinculado al issue de Linear correspondiente.
+  Creates a GitHub Pull Request targeting develop, with a standardized title
+  and description linked to the corresponding Linear issue.
 ---
 
-## Prerequisitos
+## Prerequisites
 
-- Los cambios deben estar commiteados en la rama actual (usa `/commit` si no).
-- La rama debe seguir la convención `leramirezca/les-{N}-{slug}` (usa `/branch` si no).
+- Changes must be committed on the current branch (use `/commit` if not).
+- The branch must follow the convention `leramirezca/les-{N}-{slug}` (use `/branch` if not).
 
-## Paso 1 — Recopilar contexto
+## Step 1 — Gather context
 
-Ejecuta en paralelo:
-- `git log develop..HEAD --oneline` para ver los commits del PR
-- `git diff develop...HEAD --stat` para ver los archivos cambiados
-- `mcp__linear-server__get_issue` con el ID del issue (extraído del nombre de la rama: `les-{N}` → `LES-{N}`)
+Run in parallel:
+- `git log develop..HEAD --oneline` to see the PR commits
+- `git diff develop...HEAD --stat` to see changed files
+- `mcp__linear-server__get_issue` with the issue ID (extracted from branch name: `les-{N}` → `LES-{N}`)
 
-## Paso 2 — Título del PR
+## Step 2 — PR title
 
-Formato: `tipo(scope): descripción corta — LES-{N}`
+Format: `type(scope): short description — LES-{N}`
 
-Tipos válidos:
-- `fix` — corrección de bug
-- `feat` — nueva funcionalidad
-- `security` — mejora de seguridad
-- `perf` — rendimiento
-- `refactor` — refactorización sin cambio de comportamiento
-- `chore` — mantenimiento (deps, config, etc.)
-- `docs` — documentación
+Valid types:
+- `fix` — bug fix
+- `feat` — new feature
+- `security` — security improvement
+- `perf` — performance
+- `refactor` — refactoring without behavior change
+- `chore` — maintenance (deps, config, etc.)
+- `docs` — documentation
+- `ui` — interface or style changes
+- `db` — schema or migration changes
 
-El scope es el área del código: `auth`, `api`, `ui`, `journal`, `billing`, `i18n`, `db`, etc.
+The scope is the code area: `auth`, `api`, `ui`, `journal`, `billing`, `i18n`, `db`, etc.
 
-Ejemplo: `security(auth): aumentar longitud mínima de contraseña a 8 — LES-121`
+Example: `security(auth): increase minimum password length to 8 — LES-121`
 
-Máximo 72 caracteres.
+Max 72 characters.
 
-## Paso 3 — Cuerpo del PR
+## Step 3 — PR body
 
 ```markdown
-## ¿Qué cambia?
+## What changes?
 
-{1-3 bullets concisos describiendo los cambios}
+{1-3 concise bullets describing the changes}
 
-## Archivos modificados
+## Modified files
 
-{Lista los archivos clave con una línea de descripción cada uno}
+{List key files with a one-line description each}
 
-## Criterio de aceptación
+## Acceptance criteria
 
-{Copia los criterios de aceptación del issue de Linear si los tiene,
-o redáctalos a partir de la descripción del issue}
+{Copy acceptance criteria from the Linear issue if present,
+or draft them from the issue description}
 
 ## Linear
 
 Closes LES-{N}
 ```
 
-## Paso 4 — Crear el PR
+## Step 4 — Create the PR
 
 ```bash
-git push -u origin {rama-actual}
+git push -u origin {current-branch}
 gh pr create \
   --base develop \
-  --title "{título}" \
+  --title "{title}" \
   --body "$(cat <<'EOF'
-{cuerpo completo}
+{full body}
 EOF
 )"
 ```
 
-Devuelve la URL del PR al usuario.
+Return the PR URL to the user.

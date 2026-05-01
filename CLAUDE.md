@@ -173,6 +173,21 @@ Nunca usar `npm`, `yarn` o `pnpm`.
 
 ---
 
+## Development language
+
+All development artifacts must be written in **English**:
+- Git commit messages
+- PR titles and descriptions
+- Branch names (follow Linear's `gitBranchName` field)
+- Linear issue titles and descriptions
+- Code comments
+- Skill and command files (`.claude/`)
+- Variable names, function names, file names
+
+The only exception is user-facing UI text, which lives in `messages/es.json` and `messages/en.json` (i18n).
+
+---
+
 ## Convenciones de código
 
 - **Componentes**: PascalCase, un componente por archivo

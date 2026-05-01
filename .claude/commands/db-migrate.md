@@ -1,19 +1,19 @@
-Crea o modifica un modelo de Prisma y genera la migración correspondiente.
+Create or modify a Prisma model and generate the corresponding migration.
 
-## Argumentos
-$ARGUMENTS — descripción del cambio (ej: "agregar campo mood a DreamEntry")
+## Arguments
+$ARGUMENTS — description of the change (e.g. "add mood field to DreamEntry")
 
-## Pasos
+## Steps
 
-1. Lee el schema actual en `prisma/schema.prisma`.
+1. Read the current schema at `prisma/schema.prisma`.
 
-2. Aplica el cambio solicitado al schema. Convenciones del proyecto:
+2. Apply the requested change to the schema. Project conventions:
    - IDs: `id String @id @default(cuid())`
    - Timestamps: `createdAt DateTime @default(now())` / `updatedAt DateTime @updatedAt`
-   - Relaciones: siempre definir ambos lados (`@relation`)
-   - Campos opcionales para migraciones en producción: marcar con `?` si hay datos existentes
+   - Relations: always define both sides (`@relation`)
+   - Optional fields for production migrations: mark with `?` if existing data is present
 
-3. Verifica que los modelos sigan el patrón existente:
+3. Verify models follow the existing pattern:
    ```prisma
    model DreamEntry {
      id             String   @id @default(cuid())
@@ -29,25 +29,20 @@ $ARGUMENTS — descripción del cambio (ej: "agregar campo mood a DreamEntry")
    }
    ```
 
-4. Ejecuta la migración en desarrollo:
+4. Run the migration in development:
    ```bash
-   npx prisma migrate dev --name <nombre-descriptivo-en-kebab-case>
+   bun run prisma migrate dev --name <descriptive-name-in-kebab-case>
    ```
 
-5. Si hay errores de migración, analiza el mensaje y ajusta el schema. No forzar con `--force` sin entender el error.
+5. If migration errors occur, analyze the message and adjust the schema. Never force with `--force` without understanding the error.
 
-6. Regenera el cliente Prisma si no se hizo automáticamente:
+6. Regenerate the Prisma client if not done automatically:
    ```bash
-   npx prisma generate
+   bun run prisma generate
    ```
 
-7. Verifica el resultado con:
-   ```bash
-   npx prisma studio
-   ```
-
-## Reglas
-- Nunca editar archivos dentro de `prisma/migrations/` manualmente
-- Si se elimina un campo, primero marcarlo como opcional (`?`), luego en otro commit eliminarlo
-- Los nombres de migración deben ser descriptivos en inglés (ej: `add_mood_to_dream_entry`)
-- `DATABASE_URL` debe apuntar a la BD de desarrollo, no producción
+## Rules
+- Never manually edit files inside `prisma/migrations/`
+- If removing a field, first mark it optional (`?`), then remove it in a separate commit
+- Migration names must be descriptive in **English** (e.g. `add_mood_to_dream_entry`)
+- `DATABASE_URL` must point to the development DB, not production

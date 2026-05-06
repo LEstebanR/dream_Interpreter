@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { AlertCircle } from "lucide-react";
 
@@ -33,12 +34,12 @@ export default function LocaleError({
         >
           {t("retry")}
         </button>
-        <a
+        <Link
           href="/"
           className="rounded-full border border-border px-5 py-2 text-sm text-muted-foreground hover:text-foreground hover:border-primary/60 transition-colors"
         >
           {t("back")}
-        </a>
+        </Link>
       </div>
     </div>
   );

@@ -50,4 +50,9 @@ jobs:
       - name: Generate Prisma client
         run: bun prisma generate
       - name: Test
-        run: bun test
+        run: |
+          if find . -name "*.test.*" -o -name "*.spec.*" | grep -qv node_modules; then
+            bun test
+          else
+            echo "No test files found, skipping."
+          fi

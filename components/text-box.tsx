@@ -196,6 +196,7 @@ export default function TextBox({
                   aria-label={t("placeholder")}
                   className="w-full min-h-[10rem] sm:min-h-[8rem] max-h-[14rem] resize-none border-0 bg-transparent focus-visible:ring-0 shadow-none px-5 pt-5 pb-2 text-base leading-relaxed placeholder:text-muted-foreground/40"
                   value={dream}
+                  maxLength={2000}
                   onChange={(e) => setDream(e.target.value)}
                   onFocus={() => setIsFocused(true)}
                   onBlur={() => setIsFocused(false)}
@@ -275,11 +276,13 @@ export default function TextBox({
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 4 }}
                     transition={{ duration: 0.2 }}
-                    className="text-xs text-muted-foreground/60 tabular-nums select-none"
+                    className={`text-xs tabular-nums select-none ${
+                      dream.length > 1500 ? "text-destructive/80" : "text-muted-foreground/60"
+                    }`}
                     aria-live="polite"
-                    aria-label={`${dream.length} characters`}
+                    aria-label={`${dream.length} of 2000 characters`}
                   >
-                    {dream.length}
+                    {dream.length > 1500 ? `${dream.length}/2000` : dream.length}
                   </motion.span>
                 )
               )}

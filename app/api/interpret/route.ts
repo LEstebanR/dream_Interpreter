@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
+import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { checkAnonLimit, checkFreeLimit } from "@/lib/ratelimit";
+
+const interpretSchema = z.object({
+  dream: z.string().min(1).max(2000),
+  locale: z.enum(["es", "en"]).default("es"),
+});
 
 const FREE_MODELS = [
   "nvidia/nemotron-3-nano-30b-a3b:free",
@@ -119,14 +125,11 @@ Provide a general and deep interpretation of the dream. In a single paragraph, i
 export async function POST(req: Request) {
   try {
     const [session, headersList] = await Promise.all([auth(), headers()]);
-    const { dream, locale } = await req.json();
-
-    if (!dream) {
-      return NextResponse.json(
-        { error: "A dream is required for interpretation" },
-        { status: 400 }
-      );
+    const parseResult = interpretSchema.safeParse(await req.json());
+    if (!parseResult.success) {
+      return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
+    const { dream, locale } = parseResult.data;
 
     const isPremium = session?.user?.isPremium ?? false;
     const userId = session?.user?.id;

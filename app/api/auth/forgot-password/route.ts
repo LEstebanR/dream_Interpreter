@@ -4,7 +4,10 @@ import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 import { getResend } from "@/lib/email";
 
-const schema = z.object({ email: z.string().email() });
+const schema = z.object({
+  email: z.string().email(),
+  locale: z.enum(["es", "en"]).default("es"),
+});
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -13,7 +16,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid email" }, { status: 400 });
   }
 
-  const { email } = parsed.data;
+  const { email, locale } = parsed.data;
 
   // Always return success to avoid user enumeration
   const user = await prisma.user.findUnique({ where: { email }, select: { id: true, name: true, password: true } });
@@ -28,7 +31,7 @@ export async function POST(req: Request) {
     await prisma.verificationToken.create({ data: { identifier: email, token, expires } });
 
     const origin = req.headers.get("origin") ?? process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-    const resetUrl = `${origin}/es/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
+    const resetUrl = `${origin}/${locale}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
 
     const from =
       process.env.NODE_ENV === "production"

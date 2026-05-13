@@ -3,10 +3,17 @@ import { z } from "zod";
 import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 import { getResend } from "@/lib/email";
+import { checkForgotPasswordLimit } from "@/lib/ratelimit";
 
 const schema = z.object({ email: z.string().email() });
 
 export async function POST(req: Request) {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const limit = await checkForgotPasswordLimit(ip);
+  if (!limit.success) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
+
   const body = await req.json();
   const parsed = schema.safeParse(body);
   if (!parsed.success) {

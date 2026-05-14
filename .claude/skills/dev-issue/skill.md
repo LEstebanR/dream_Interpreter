@@ -45,11 +45,13 @@ Confirm to the user which branch was created.
 ## Step 3 — Implement the issue
 
 Read `CLAUDE.md` fully before writing any code.
+If the issue involves UI or new pages, also read `DESIGN.md` to apply the correct design patterns (icon containers, typography, buttons, cards, animations).
 
 Then implement the changes required by the issue:
 
 - Follow all conventions documented in CLAUDE.md (naming, auth, i18n, Prisma,
   Zod validation, error responses, etc.)
+- Follow all design patterns documented in DESIGN.md for any UI changes
 - Prefer editing existing files over creating new ones
 - Do not add code, abstractions, or error handling beyond what the issue requires
 - Write no comments unless the WHY is non-obvious

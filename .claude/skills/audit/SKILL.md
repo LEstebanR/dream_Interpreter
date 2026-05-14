@@ -17,6 +17,8 @@ Audit the full project and log each improvement found as a Linear issue. Do not 
 
 Read `CLAUDE.md` to understand the stack, conventions, and what NOT to do. This is essential to avoid creating issues about intentional decisions.
 
+Also read `DESIGN.md` to understand the established design system (icon containers, typography, buttons, cards, animations). Use it as the reference for flagging UI inconsistencies in Step 3.
+
 ---
 
 ## Step 2 — Code exploration

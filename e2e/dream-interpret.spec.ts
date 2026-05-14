@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Dream interpretation — anonymous', () => {
   test('anonymous user can type a dream and receive an interpretation', async ({ page }) => {
+    test.skip(!process.env.OPENROUTER_API_KEY, 'requires OPENROUTER_API_KEY — skipped in CI without the secret');
     await page.goto('/es');
 
     const textarea = page.locator('textarea[aria-label="Describe tu sueño aquí..."]');

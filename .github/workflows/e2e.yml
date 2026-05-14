@@ -29,7 +29,9 @@ jobs:
 
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/dream_test
-      AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+      # Fallback keeps NextAuth working even when the secret is not stored as a GitHub secret yet.
+      # Must be at least 32 characters for NextAuth v5.
+      AUTH_SECRET: ${{ secrets.AUTH_SECRET || 'ci-placeholder-auth-secret-for-e2e-tests-only-32chars' }}
       NEXT_PUBLIC_APP_URL: http://localhost:3000
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
       UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
@@ -38,10 +40,10 @@ jobs:
       GOOGLE_CLIENT_ID: dummy
       GOOGLE_CLIENT_SECRET: dummy
       # Stripe — dummy values (payment tests not covered in e2e)
-      STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
-      STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
-      NEXT_PUBLIC_STRIPE_PRICE_ID: ${{ secrets.NEXT_PUBLIC_STRIPE_PRICE_ID }}
+      STRIPE_SECRET_KEY: sk_test_placeholder
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_placeholder
+      STRIPE_WEBHOOK_SECRET: whsec_placeholder
+      NEXT_PUBLIC_STRIPE_PRICE_ID: price_placeholder
       RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
 
     steps:

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
+import "./globals.css";
 
 export default function NotFound() {
   return (

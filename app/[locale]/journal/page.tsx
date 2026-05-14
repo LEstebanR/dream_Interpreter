@@ -35,6 +35,7 @@ export default async function JournalPage({
         interpretation: true,
         mood: true,
         tags: true,
+        dreamDate: true,
         createdAt: true,
       },
     }),
@@ -43,6 +44,7 @@ export default async function JournalPage({
 
   const serialized = entries.map((e) => ({
     ...e,
+    dreamDate: e.dreamDate ?? null,
     createdAt: e.createdAt.toISOString(),
   }));
 

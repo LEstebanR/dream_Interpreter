@@ -31,6 +31,7 @@ export async function GET(req: Request) {
         interpretation: true,
         mood: true,
         tags: true,
+        dreamDate: true,
         createdAt: true,
       },
     }),
@@ -38,7 +39,7 @@ export async function GET(req: Request) {
   ]);
 
   return NextResponse.json({
-    entries: entries.map((e) => ({ ...e, createdAt: e.createdAt.toISOString() })),
+    entries: entries.map((e) => ({ ...e, createdAt: e.createdAt.toISOString(), dreamDate: e.dreamDate ?? null })),
     total,
     hasMore: skip + entries.length < total,
     page,
@@ -66,21 +67,17 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid data" }, { status: 400 });
   }
 
-  const createdAt = parsed.data.dreamDate
-    ? new Date(`${parsed.data.dreamDate}T12:00:00`)
-    : undefined;
-
   const entry = await prisma.dreamEntry.create({
     data: {
       userId: session.user.id,
       dreamText: parsed.data.dreamText,
       interpretation: parsed.data.interpretation,
-      ...(createdAt && { createdAt }),
+      ...(parsed.data.dreamDate && { dreamDate: parsed.data.dreamDate }),
     },
   });
 
   return NextResponse.json(
-    { entry: { ...entry, createdAt: entry.createdAt.toISOString() } },
+    { entry: { ...entry, createdAt: entry.createdAt.toISOString(), dreamDate: entry.dreamDate ?? null } },
     { status: 201 }
   );
 }

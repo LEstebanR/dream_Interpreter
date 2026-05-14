@@ -8,8 +8,9 @@ import { Loader2, ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import { MOODS, getMoodEmoji } from "@/lib/moods";
 import type { JournalEntry } from "@/types/journal";
 
-function formatDate(iso: string, locale: string) {
-  return new Date(iso).toLocaleDateString(locale === "es" ? "es-ES" : "en-US", {
+function formatDate(dreamDate: string | null, createdAt: string, locale: string) {
+  const d = dreamDate ? new Date(`${dreamDate}T00:00:00`) : new Date(createdAt);
+  return d.toLocaleDateString(locale === "es" ? "es-ES" : "en-US", {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -129,7 +130,7 @@ export function DreamDetail({ entry }: { entry: JournalEntry }) {
             )}
             <div className="flex items-center gap-2">
               <p className="text-xs text-muted-foreground">
-                {formatDate(entry.createdAt, locale)}
+                {formatDate(entry.dreamDate, entry.createdAt, locale)}
               </p>
               {displayEmoji && (
                 <span className="text-sm">{displayEmoji}</span>

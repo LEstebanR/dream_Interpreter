@@ -20,7 +20,9 @@ function groupEntriesByDate(
   const groups: Map<string, JournalEntry[]> = new Map();
 
   for (const entry of entries) {
-    const d = new Date(entry.createdAt);
+    const d = entry.dreamDate
+      ? new Date(`${entry.dreamDate}T00:00:00`)
+      : new Date(entry.createdAt);
     const entryDay = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
 
     let label: string;

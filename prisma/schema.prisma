@@ -78,6 +78,7 @@ model DreamEntry {
   interpretation String?
   mood           String?
   tags           String[]
+  dreamDate      String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

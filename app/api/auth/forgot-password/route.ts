@@ -1,14 +1,9 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
 import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 import { getResend } from "@/lib/email";
 import { checkForgotPasswordLimit } from "@/lib/ratelimit";
-
-const schema = z.object({
-  email: z.string().email(),
-  locale: z.enum(["es", "en"]).default("es"),
-});
+import { forgotPasswordSchema as schema } from "@/lib/schemas";
 
 export async function POST(req: Request) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";

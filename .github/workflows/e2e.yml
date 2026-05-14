@@ -32,8 +32,8 @@ jobs:
       AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
       NEXT_PUBLIC_APP_URL: http://localhost:3000
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-      UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
-      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+      # Upstash Redis intentionally omitted — ratelimit.ts falls back to "always allow"
+      # when env vars are absent, preventing CI runs from exhausting the shared rate limit.
       # Google OAuth — dummy values (OAuth tests not covered in e2e)
       GOOGLE_CLIENT_ID: dummy
       GOOGLE_CLIENT_SECRET: dummy

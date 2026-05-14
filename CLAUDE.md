@@ -25,6 +25,7 @@ App web de interpretación de sueños con IA. Usuarios anónimos pueden interpre
 | Deploy | Vercel |
 | Analytics | Vercel Analytics |
 | Rate limiting | Upstash Redis (para usuarios free/anónimos) |
+| Testing | Playwright (E2E) + Bun test runner (unit) |
 
 ---
 
@@ -91,11 +92,23 @@ App web de interpretación de sueños con IA. Usuarios anónimos pueden interpre
   prisma.ts               # Singleton PrismaClient
   stripe.ts               # Singleton Stripe (misma pauta que prisma.ts)
   email.ts                # Singleton Resend para envío de emails
+  schemas.ts              # Zod schemas centralizados (interpret, register, forgotPassword, resetPassword)
+  ratelimit.ts            # Upstash Redis rate limiting con fallback graceful si no hay Redis
   utils.ts                # cn(), etc.
 /prisma
   schema.prisma           # modelos: User, Account, Session, VerificationToken, DreamEntry
 /types
   next-auth.d.ts          # extensiones de tipos: session.user.id, session.user.isPremium
+/e2e                      # Playwright E2E tests
+  auth.setup.ts           # setup project: registra e2e@example.com y guarda storageState
+  auth-flow.spec.ts       # register/sign-in/sign-out API + UI
+  auth-guard.spec.ts      # rutas protegidas redirigen a /sign-in si no hay sesión
+  auth-pages.spec.ts      # rutas de auth redirigen al home si ya hay sesión
+  dream-interpret.spec.ts # flujo de interpretación anónima
+  navigation.spec.ts      # 404 y navegación
+  i18n.spec.ts            # locale switcher y contenido traducido
+  tsconfig.json           # tsconfig separado con types: [@playwright/test, node]
+  .auth/user.json         # storageState — gitignored
 proxy.ts                  # auth guard + next-intl locale routing (Next.js 16: "middleware" → "proxy")
 ```
 
@@ -367,6 +380,74 @@ if (process.env.NODE_ENV !== "production") globalForResend.resend = resend;
 ```
 El `from:` debe usar un dominio verificado en Resend. En producción configurar `noreply@<dominio_verificado>`.
 
+### Zod schemas — centralizar en lib/schemas.ts
+No definir schemas Zod inline dentro de los route handlers. Exportarlos desde `lib/schemas.ts` para poder hacer unit tests sin levantar el servidor:
+```ts
+// lib/schemas.ts
+export const registerSchema = z.object({ name: z.string().min(1), email: z.string().email(), password: z.string().min(8) });
+// ...
+// En el route handler:
+import { registerSchema } from '@/lib/schemas';
+```
+
+### Playwright E2E — estructura de proyectos
+El config usa dos proyectos: `setup` (corre primero, guarda `storageState`) y `chromium` (depende de `setup`):
+```ts
+projects: [
+  { name: 'setup', testMatch: /auth\.setup\.ts/ },
+  { name: 'chromium', use: { ...devices['Desktop Chrome'] }, testIgnore: /auth\.setup\.ts/, dependencies: ['setup'] },
+]
+```
+`auth.setup.ts` registra el usuario de prueba via API fetch y guarda `storageState` a `e2e/.auth/user.json`. Los tests que necesitan sesión activa hacen `test.use({ storageState: AUTH_FILE })`.
+
+### Playwright — NextAuth v5 + headless: usar API para setup, UI solo para sign-in
+`signIn("credentials", { callbackUrl })` sin `redirect: false` (flujo del sign-up form) es **no confiable** en NextAuth v5 beta bajo Playwright headless: el redirect post-registro falla intermitentemente.
+
+Patrón correcto para tests de auth:
+1. Seed del usuario de prueba via `request.post('/api/auth/register')` en `beforeAll` — no via UI
+2. Tests de registro llaman la API directamente y verifican el status HTTP (201)
+3. Tests de sign-in/sign-out usan el sign-in form UI (que usa `redirect: false` + `router.push` manual — confiable)
+
+```ts
+test.beforeAll(async ({ request }) => {
+  const res = await request.post('/api/auth/register', {
+    data: { name, email, password },
+  });
+  expect([201, 409]).toContain(res.status()); // 409 = ya existe, ok en retries
+});
+```
+
+### Playwright — suprimir OnboardingModal antes de navegar
+El `OnboardingModal` lee `localStorage` con 800ms de delay. Si no se suprime, el overlay bloquea los clicks en tests. Usar `addInitScript` **antes** de `page.goto()`:
+```ts
+await page.addInitScript(() => {
+  localStorage.setItem('oniric-onboarding-seen', '1');
+});
+await page.goto('/es');
+```
+`addInitScript` corre antes de que el JS de la página se ejecute, a diferencia de `evaluate` que corre después.
+
+### Playwright — tsconfig separado en e2e/
+`lib/ratelimit.test.ts` usa `bun:test` y `e2e/*.spec.ts` usa `@playwright/test` — sus tipos son incompatibles. El root `tsconfig.json` excluye `e2e/`. El directorio `e2e/` tiene su propio `tsconfig.json`:
+```json
+{ "extends": "../tsconfig.json", "compilerOptions": { "types": ["@playwright/test", "node"] } }
+```
+
+### bun test — excluir archivos Playwright
+`bun test` escanea `*.spec.ts` por defecto y crashea al encontrar globals de Playwright (`test.describe`, etc.). Siempre correr con filtro de nombre:
+```bash
+bun test ".test."   # solo corre archivos con .test. en el nombre
+```
+En CI (`ci.yml`), el script de tests usa este filtro. Los specs de Playwright se corren con `playwright test` en su propio workflow (`e2e.yml`).
+
+### Emails de prueba en E2E — usar @example.com
+Zod `.email()` puede rechazar TLDs no estándar como `.local`. Siempre usar `@example.com` en tests E2E:
+```ts
+const TEST_EMAIL = `e2e-flow-${Date.now()}@example.com`; // ✅
+// No: `e2e@test.local` — puede fallar validación Zod
+```
+Usar timestamp en el email para evitar conflictos entre runs paralelos en CI.
+
 ---
 
 ## Qué NO hacer
@@ -388,3 +469,8 @@ El `from:` debe usar un dominio verificado en Resend. En producción configurar 
 - No usar el Product ID (`prod_xxx`) como `NEXT_PUBLIC_STRIPE_PRICE_ID` — debe ser el Price ID (`price_xxx`)
 - No usar `NEXT_PUBLIC_APP_URL` para las URLs de redirect en Stripe Checkout — usar el `origin` del request para que funcione igual en local y producción
 - No usar `auth()` de NextAuth v5 en `proxy.ts` cuando el callback `session` hace queries a BD — el middleware corre en Edge Runtime sin TCP; usar `getToken` de `next-auth/jwt` en su lugar
+- No correr `bun test` sin filtro de nombre — escanea `*.spec.ts` de Playwright y crashea; usar `bun test ".test."`
+- No usar `signIn("credentials", { callbackUrl })` sin `redirect: false` en tests Playwright — es no confiable en NextAuth v5 beta headless; hacer seed del usuario via API y testear sign-in/sign-out con el form de login
+- No definir schemas Zod inline en route handlers — exportarlos desde `lib/schemas.ts` para poder hacer unit tests
+- No usar TLDs `.local` o `.test` en emails de prueba E2E — pueden fallar la validación de Zod; usar `@example.com`
+- No suprimir el OnboardingModal con `page.evaluate()` — corre después del JS de la página; usar `page.addInitScript()` antes de `page.goto()` para que corra antes del JS

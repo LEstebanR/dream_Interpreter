@@ -1,13 +1,8 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
-import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { checkAnonLimit, checkFreeLimit } from "@/lib/ratelimit";
-
-const interpretSchema = z.object({
-  dream: z.string().min(1).max(2000),
-  locale: z.enum(["es", "en"]).default("es"),
-});
+import { interpretSchema } from "@/lib/schemas";
 
 const FREE_MODELS = [
   "nvidia/nemotron-3-nano-30b-a3b:free",

@@ -5,7 +5,7 @@ export const AUTH_FILE = path.join(__dirname, '.auth/user.json');
 
 const TEST_USER = {
   name: 'E2E Test User',
-  email: 'e2e@test.local',
+  email: 'e2e@example.com',
   password: 'TestPass123!',
 };
 

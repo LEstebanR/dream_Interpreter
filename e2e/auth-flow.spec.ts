@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 const timestamp = Date.now();
-const TEST_EMAIL = `e2e-flow-${timestamp}@test.local`;
+const TEST_EMAIL = `e2e-flow-${timestamp}@example.com`;
 const TEST_PASSWORD = 'FlowTest123!';
 const TEST_NAME = 'Flow Tester';
 

@@ -1,16 +1,17 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
-
-const registerSchema = z.object({
-  name: z.string().min(1),
-  email: z.string().email(),
-  password: z.string().min(8),
-});
+import { checkRegisterLimit } from "@/lib/ratelimit";
+import { registerSchema } from "@/lib/schemas";
 
 export async function POST(req: Request) {
   try {
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+    const limit = await checkRegisterLimit(ip);
+    if (!limit.success) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
     const body = await req.json();
     const parsed = registerSchema.safeParse(body);
 

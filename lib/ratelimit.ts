@@ -10,14 +10,15 @@ const redis =
 
 async function checkLimit(
   key: string,
-  limit: number
+  limit: number,
+  ttl = 86400
 ): Promise<{ success: boolean; remaining: number; limit: number }> {
   if (!redis) return { success: true, remaining: limit, limit };
 
   try {
     const count = await redis.incr(key);
     if (count === 1) {
-      await redis.expire(key, 86400); // reset after 24h
+      await redis.expire(key, ttl);
     }
     const remaining = Math.max(0, limit - count);
     return { success: count <= limit, remaining, limit };
@@ -37,4 +38,18 @@ export async function checkFreeLimit(
   userId: string
 ): Promise<{ success: boolean; remaining: number; limit: number }> {
   return checkLimit(`dream:free:${userId}`, 5);
+}
+
+// 5 registration attempts per IP per 15 minutes
+export async function checkRegisterLimit(
+  ip: string
+): Promise<{ success: boolean }> {
+  return checkLimit(`auth:register:${ip}`, 5, 900);
+}
+
+// 3 forgot-password requests per IP per hour
+export async function checkForgotPasswordLimit(
+  ip: string
+): Promise<{ success: boolean }> {
+  return checkLimit(`auth:forgot-password:${ip}`, 3, 3600);
 }

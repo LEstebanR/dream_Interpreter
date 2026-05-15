@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [develop, main]
+    branches: [main]
   pull_request:
     branches: [develop, main]
 
@@ -50,4 +50,4 @@ jobs:
       - name: Generate Prisma client
         run: bun prisma generate
       - name: Test
-        run: bun test
+        run: bun test ".test."

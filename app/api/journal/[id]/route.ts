@@ -39,7 +39,7 @@ export async function PATCH(
   });
 
   return NextResponse.json({
-    entry: { ...updated, createdAt: updated.createdAt.toISOString() },
+    entry: { ...updated, createdAt: updated.createdAt.toISOString(), dreamDate: updated.dreamDate ?? null },
   });
 }
 

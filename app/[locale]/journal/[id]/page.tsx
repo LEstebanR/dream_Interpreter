@@ -23,6 +23,7 @@ export default async function JournalEntryPage({
       interpretation: true,
       mood: true,
       tags: true,
+      dreamDate: true,
       createdAt: true,
       userId: true,
     },
@@ -37,6 +38,7 @@ export default async function JournalEntryPage({
     interpretation: entry.interpretation,
     mood: entry.mood,
     tags: entry.tags,
+    dreamDate: entry.dreamDate ?? null,
     createdAt: entry.createdAt.toISOString(),
   };
 

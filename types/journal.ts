@@ -5,5 +5,6 @@ export type JournalEntry = {
   interpretation: string | null;
   mood: string | null;
   tags: string[];
+  dreamDate: string | null;
   createdAt: string;
 };

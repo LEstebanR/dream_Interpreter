@@ -41,7 +41,7 @@ export async function POST(req: Request) {
 
     const { error: emailError } = await getResend().emails.send({
       from,
-      to: process.env.NODE_ENV === "production" ? email : "lesteban.dev@gmail.com",
+      to: email,
       subject: resetPasswordEmailSubject(locale),
       html: resetPasswordEmailHtml(resetUrl, locale),
     });

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 import { getResend } from "@/lib/email";
+import { resetPasswordEmailHtml, resetPasswordEmailSubject } from "@/lib/email-templates";
 import { checkForgotPasswordLimit } from "@/lib/ratelimit";
 import { forgotPasswordSchema as schema } from "@/lib/schemas";
 
@@ -42,18 +43,9 @@ export async function POST(req: Request) {
 
     const { error: emailError } = await getResend().emails.send({
       from,
-      to: process.env.NODE_ENV === "production" ? email : "lesteban.dev@gmail.com",
-      subject: "Recupera tu contraseña / Reset your password",
-      html: `
-        <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
-          <h2 style="margin:0 0 8px">Recupera tu contraseña</h2>
-          <p style="color:#666;margin:0 0 24px">Haz clic en el enlace de abajo para crear una nueva contraseña. El enlace expira en 1 hora.</p>
-          <a href="${resetUrl}" style="display:inline-block;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;text-decoration:none;border-radius:24px;padding:12px 28px;font-weight:500">
-            Restablecer contraseña
-          </a>
-          <p style="color:#999;font-size:12px;margin:24px 0 0">Si no solicitaste este correo, ignóralo.</p>
-        </div>
-      `,
+      to: email,
+      subject: resetPasswordEmailSubject(locale),
+      html: resetPasswordEmailHtml(resetUrl, locale),
     });
 
     if (emailError) console.error("[forgot-password] Resend error:", emailError);

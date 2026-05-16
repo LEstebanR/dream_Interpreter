@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { Sparkles, BookOpen } from "lucide-react";
 import { DreamSection } from "@/components/dream-section";
 import { HomeAnimations } from "@/components/home-animations";
+import { HomeFeatures } from "@/components/home-features";
 import { auth } from "@/lib/auth";
 import Link from "next/link";
 
@@ -76,6 +77,10 @@ export default async function Home({
 
         </div>
       </div>
+
+      {/* Features section — solo para usuarios anónimos */}
+      {!session?.user && <HomeFeatures locale={locale} />}
+
     </div>
   );
 }

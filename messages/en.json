@@ -6,6 +6,23 @@
     "madeWith": "Made with",
     "by": "by"
   },
+  "HomeFeatures": {
+    "howItWorksHeading": "How it works",
+    "step1Title": "Describe your dream",
+    "step1Desc": "Write what you remember: people, places, feelings.",
+    "step2Title": "AI analyzes it",
+    "step2Desc": "A psychoanalytic model identifies symbols and unconscious patterns.",
+    "step3Title": "Discover its meaning",
+    "step3Desc": "Receive a deep interpretation tailored to your dream.",
+    "premiumHeading": "With Premium, so much more",
+    "premium1Title": "Unlimited interpretations",
+    "premium1Desc": "No daily limit. Interpret as many dreams as you want.",
+    "premium2Title": "Advanced AI with Claude",
+    "premium2Desc": "Access a superior model for deeper and more accurate interpretations.",
+    "premium3Title": "Private dream journal",
+    "premium3Desc": "Save, organize, and revisit all your interpretations in one place.",
+    "cta": "Create free account"
+  },
   "Home": {
     "title": "Interpret your dreams",
     "subtitle": "Describe your dream and discover its meaning",

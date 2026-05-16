@@ -6,6 +6,23 @@
     "madeWith": "Hecho con",
     "by": "por"
   },
+  "HomeFeatures": {
+    "howItWorksHeading": "Cómo funciona",
+    "step1Title": "Describe tu sueño",
+    "step1Desc": "Escribe lo que recuerdas: personajes, lugares, emociones.",
+    "step2Title": "La IA lo analiza",
+    "step2Desc": "Un modelo psicoanalítico identifica símbolos y patrones inconscientes.",
+    "step3Title": "Descubre su significado",
+    "step3Desc": "Recibe una interpretación profunda adaptada a tu sueño.",
+    "premiumHeading": "Con Premium, mucho más",
+    "premium1Title": "Interpretaciones ilimitadas",
+    "premium1Desc": "Sin límite diario. Interpreta todos los sueños que quieras.",
+    "premium2Title": "IA avanzada con Claude",
+    "premium2Desc": "Accede a un modelo superior para interpretaciones más profundas y precisas.",
+    "premium3Title": "Diario de sueños privado",
+    "premium3Desc": "Guarda, organiza y revisa todas tus interpretaciones en un solo lugar.",
+    "cta": "Crear cuenta gratis"
+  },
   "Home": {
     "title": "Interpreta tus sueños",
     "subtitle": "Describe tu sueño y descubre su significado",

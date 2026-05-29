@@ -1,37 +1,40 @@
-Crea un git commit siguiendo las convenciones de este proyecto.
+Create a git commit following this project's conventions.
 
-## Pasos
+## Steps
 
-1. Ejecuta en paralelo:
-   - `git status` para ver archivos modificados
-   - `git diff HEAD` para ver todos los cambios staged y unstaged
-   - `git log --oneline -5` para ver el estilo de commits recientes
+1. Run in parallel:
+   - `git status` to see modified files
+   - `git diff HEAD` to see all staged and unstaged changes
+   - `git log --oneline -5` to match the recent commit style
 
-2. Analiza los cambios y determina el tipo:
-   - `feat`: nueva feature o funcionalidad
-   - `fix`: corrección de bug
-   - `ui`: cambios de interfaz o estilos
-   - `refactor`: reorganización sin cambiar comportamiento
-   - `db`: cambios de schema Prisma o migraciones
-   - `i18n`: cambios de traducciones o internacionalización
-   - `auth`: cambios relacionados con autenticación
-   - `payments`: cambios relacionados con Stripe
+2. Analyze the changes and determine the type:
+   - `feat`: new feature or functionality
+   - `fix`: bug fix
+   - `security`: security improvement
+   - `ui`: interface or style changes
+   - `refactor`: reorganization without behavior change
+   - `db`: Prisma schema changes or migrations
+   - `i18n`: translation or internationalization changes
+   - `auth`: authentication-related changes
+   - `payments`: Stripe-related changes
    - `chore`: deps, config, tooling
+   - `perf`: performance improvement
 
-3. Formato del mensaje:
+3. Commit message format:
    ```
-   <tipo>(<scope opcional>): <descripción concisa en infinitivo>
+   <type>(<optional scope>): <concise description in imperative mood>
 
    Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
    ```
 
-4. Stagea los archivos relevantes (excluir `.env*`, archivos de credenciales) y crea el commit.
+4. Stage the relevant files (exclude `.env*`, credential files) and create the commit.
 
-5. Ejecuta `git status` para confirmar que el commit fue exitoso.
+5. Run `git status` to confirm the commit succeeded.
 
-## Reglas
-- Descripción en español, imperativo, sin punto final
-- Máximo 72 caracteres en la primera línea
-- No incluir archivos `.env`, `.env.local`, ni credenciales
-- No usar `--no-verify`
-- Si hay cambios en `prisma/schema.prisma`, mencionar los modelos afectados en el scope
+## Rules
+- Message in **English**, imperative mood, no trailing period
+- Max 72 characters on the first line
+- If the commit resolves a Linear issue, append ` — LES-N` to the description
+- Never include `.env`, `.env.local`, or credential files
+- Never use `--no-verify`
+- If `prisma/schema.prisma` changed, mention the affected models in the scope

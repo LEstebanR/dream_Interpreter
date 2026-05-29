@@ -1,0 +1,46 @@
+import { NextResponse } from "next/server";
+import bcrypt from "bcryptjs";
+import { prisma } from "@/lib/prisma";
+import { checkRegisterLimit } from "@/lib/ratelimit";
+import { registerSchema } from "@/lib/schemas";
+
+export async function POST(req: Request) {
+  try {
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+    const limit = await checkRegisterLimit(ip);
+    if (!limit.success) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
+    const body = await req.json();
+    const parsed = registerSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Datos inválidos", details: parsed.error.flatten() },
+        { status: 400 }
+      );
+    }
+
+    const { name, email, password } = parsed.data;
+
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      return NextResponse.json(
+        { error: "Ya existe una cuenta con ese email" },
+        { status: 409 }
+      );
+    }
+
+    const hashed = await bcrypt.hash(password, 12);
+
+    await prisma.user.create({
+      data: { name, email, password: hashed },
+    });
+
+    return NextResponse.json({ success: true }, { status: 201 });
+  } catch (error) {
+    console.error("Register error:", error);
+    return NextResponse.json({ error: "Error interno" }, { status: 500 });
+  }
+}

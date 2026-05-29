@@ -7,7 +7,7 @@ Contexto del proyecto para Claude Code. Léelo completo antes de tocar código.
 App web de interpretación de sueños con IA. Usuarios anónimos pueden interpretar sueños gratis (modelo básico, limitado). Usuarios premium tienen acceso al diario de sueños, modelo IA superior e interpretaciones ilimitadas.
 
 **URL producción:** configurada en `NEXT_PUBLIC_APP_URL`
-**Linear:** https://linear.app/lesteban/project/dream-interpreter-mvp-7db6ffb3f537
+**Linear:** https://linear.app/lesteban/project/dream-interpreter-mvp-7db6ffb3f537 (proyecto Oniricapp)
 
 ---
 
@@ -25,6 +25,7 @@ App web de interpretación de sueños con IA. Usuarios anónimos pueden interpre
 | Deploy | Vercel |
 | Analytics | Vercel Analytics |
 | Rate limiting | Upstash Redis (para usuarios free/anónimos) |
+| Testing | Playwright (E2E) + Bun test runner (unit) |
 
 ---
 
@@ -35,25 +36,47 @@ App web de interpretación de sueños con IA. Usuarios anónimos pueden interpre
   layout.tsx              # root layout mínimo (pass-through)
   page.tsx                # redirect al locale por defecto
   /[locale]               # routing de i18n (next-intl)
-    layout.tsx            # Server Component — fonts, providers, metadata
+    layout.tsx            # Server Component — fonts, providers, metadata, AuthSessionProvider
     page.tsx              # Server Component — título, ícono, <DreamSection />
-    /journal              # diario de sueños (solo premium) — pendiente
-    /sign-in              # pendiente
-    /sign-up              # pendiente
-    /profile              # pendiente
-    /billing              # pendiente
-    /pricing              # pendiente
+    /sign-in              # página de login (acepta ?reset=1 para mostrar mensaje de éxito)
+    /sign-up              # página de registro
+    /forgot-password      # formulario para solicitar reset de contraseña
+    /reset-password       # formulario para crear nueva contraseña (requiere ?token=&email=)
+    /journal              # diario de sueños (solo premium)
+    /profile              # perfil y cambio de contraseña
+    /billing              # página de suscripción (plan actual + gestionar + cancelar)
+    /pricing              # página de pricing con tarjetas Free/Premium
   /api
     /interpret            # POST — interpretar sueño (con fallback de modelos)
-    /journal              # CRUD entradas del diario — pendiente
-    /stripe               # pendiente
-    /auth/[...nextauth]   # pendiente
+    /auth
+      /[...nextauth]      # handlers NextAuth v5
+      /register           # POST — registro con email/password
+      /forgot-password    # POST — enviar email de recuperación (Resend)
+      /reset-password     # POST — cambiar contraseña con token
+    /journal              # CRUD entradas del diario
+    /stripe
+      /checkout           # POST — crear Checkout Session
+      /portal             # POST — crear Customer Portal Session
+      /webhook            # POST — sincronizar isPremium desde eventos Stripe
 /components
   dream-section.tsx       # Client island — estado interpretación + TextBox
   text-box.tsx            # Client island — input + llamada a API
+  /auth
+    sign-in-form.tsx           # Client island — formulario login + Google OAuth + link "¿Olvidaste contraseña?"
+    sign-up-form.tsx           # Client island — formulario registro
+    forgot-password-form.tsx   # Client island — solicitar reset de contraseña
+    reset-password-form.tsx    # Client island — crear nueva contraseña con token
+  /providers
+    session-provider.tsx  # Client wrapper de SessionProvider (next-auth/react)
+  /billing
+    manage-subscription-button.tsx  # Client island — abre Customer Portal
+  /pricing
+    pricing-cards.tsx     # Client island — tarjetas Free/Premium con CTA
   /ui
-    header.tsx            # Server Component
+    header.tsx            # Server Component (fixed, con UserInfo + AuthButtons)
     footer.tsx            # Server Component
+    auth-buttons.tsx      # Client island — sign-in/sign-up/sign-out
+    user-info.tsx         # Client island — avatar + nombre cuando hay sesión
     locale-switcher.tsx   # Client island — toggle EN/ES con Framer Motion
     animated-heart.tsx    # Client island — corazón palpitante
     # shadcn/ui components...
@@ -65,8 +88,28 @@ App web de interpretación de sueños con IA. Usuarios anónimos pueden interpre
   en.json                 # textos en inglés
   es.json                 # textos en español
 /lib
+  auth.ts                 # NextAuth v5 config — exporta { handlers, signIn, signOut, auth }
+  prisma.ts               # Singleton PrismaClient
+  stripe.ts               # Singleton Stripe (misma pauta que prisma.ts)
+  email.ts                # Singleton Resend para envío de emails
+  schemas.ts              # Zod schemas centralizados (interpret, register, forgotPassword, resetPassword)
+  ratelimit.ts            # Upstash Redis rate limiting con fallback graceful si no hay Redis
   utils.ts                # cn(), etc.
-middleware.ts             # next-intl locale routing
+/prisma
+  schema.prisma           # modelos: User, Account, Session, VerificationToken, DreamEntry
+/types
+  next-auth.d.ts          # extensiones de tipos: session.user.id, session.user.isPremium
+/e2e                      # Playwright E2E tests
+  auth.setup.ts           # setup project: registra e2e@example.com y guarda storageState
+  auth-flow.spec.ts       # register/sign-in/sign-out API + UI
+  auth-guard.spec.ts      # rutas protegidas redirigen a /sign-in si no hay sesión
+  auth-pages.spec.ts      # rutas de auth redirigen al home si ya hay sesión
+  dream-interpret.spec.ts # flujo de interpretación anónima
+  navigation.spec.ts      # 404 y navegación
+  i18n.spec.ts            # locale switcher y contenido traducido
+  tsconfig.json           # tsconfig separado con types: [@playwright/test, node]
+  .auth/user.json         # storageState — gitignored
+proxy.ts                  # auth guard + next-intl locale routing (Next.js 16: "middleware" → "proxy")
 ```
 
 ---
@@ -74,10 +117,11 @@ middleware.ts             # next-intl locale routing
 ## Modelos de base de datos (Prisma)
 
 ```prisma
-User          — id, email, name, image, isPremium, stripeCustomerId, stripeSubscriptionId
-DreamEntry    — id, userId, title, dreamText, interpretation, mood, tags[], createdAt
-Account       — NextAuth OAuth accounts
-Session       — NextAuth sessions
+User              — id, email, name, image, isPremium, stripeCustomerId, stripeSubscriptionId, password
+DreamEntry        — id, userId, title, dreamText, interpretation, mood, tags[], createdAt
+Account           — NextAuth OAuth accounts
+Session           — NextAuth sessions
+VerificationToken — identifier (email), token (random hex), expires — usado para reset de contraseña
 ```
 
 ---
@@ -97,21 +141,33 @@ La selección de modelo ocurre en `/api/interpret/route.ts` leyendo `session.use
 ## Variables de entorno
 
 ```env
-# Existentes
+# IA
 OPENROUTER_API_KEY=
 NEXT_PUBLIC_APP_URL=
 
-# Nuevas (MVP)
+# Base de datos
 DATABASE_URL=                    # PostgreSQL (Neon)
-NEXTAUTH_SECRET=
-NEXTAUTH_URL=
+
+# Auth (NextAuth v5 usa AUTH_SECRET, no NEXTAUTH_SECRET)
+AUTH_SECRET=                     # openssl rand -base64 32
+# AUTH_URL solo necesaria fuera de Vercel; en Vercel se auto-detecta
+
+# Google OAuth
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
+
+# Stripe
 STRIPE_SECRET_KEY=
-STRIPE_PUBLISHABLE_KEY=
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
 STRIPE_WEBHOOK_SECRET=
-UPSTASH_REDIS_REST_URL=          # rate limiting
+NEXT_PUBLIC_STRIPE_PRICE_ID=         # Price ID del plan Premium (price_xxx, no prod_xxx)
+
+# Rate limiting
+UPSTASH_REDIS_REST_URL=
 UPSTASH_REDIS_REST_TOKEN=
+
+# Email (Resend)
+RESEND_API_KEY=              # Para envío de emails (reset de contraseña, etc.)
 ```
 
 Nunca hardcodear valores. Siempre leer desde `process.env`.
@@ -130,11 +186,26 @@ Nunca usar `npm`, `yarn` o `pnpm`.
 
 ---
 
+## Development language
+
+All development artifacts must be written in **English**:
+- Git commit messages
+- PR titles and descriptions
+- Branch names (follow Linear's `gitBranchName` field)
+- Linear issue titles and descriptions
+- Code comments
+- Skill and command files (`.claude/`)
+- Variable names, function names, file names
+
+The only exception is user-facing UI text, which lives in `messages/es.json` and `messages/en.json` (i18n).
+
+---
+
 ## Convenciones de código
 
 - **Componentes**: PascalCase, un componente por archivo
 - **API routes**: siempre validar con `zod` antes de procesar
-- **Auth guard**: usar `getServerSession()` en server components / API routes para verificar premium
+- **Auth guard**: usar `auth()` de `@/lib/auth` en Server Components/API routes (NextAuth v5). En Client Components usar `useSession()` de `next-auth/react`
 - **i18n**: nunca hardcodear texto visible al usuario — usar `useTranslations()` o `getTranslations()`
 - **Estilos**: TailwindCSS inline, no CSS modules. Usar `cn()` de `lib/utils.ts` para clases condicionales
 - **Prisma**: importar siempre desde `@/lib/prisma` (singleton), nunca instanciar `new PrismaClient()` directo
@@ -146,7 +217,8 @@ Nunca usar `npm`, `yarn` o `pnpm`.
 
 ### Proteger ruta premium (API)
 ```ts
-const session = await getServerSession(authOptions)
+// NextAuth v5: usar auth() directamente, no getServerSession(authOptions)
+const session = await auth()
 if (!session?.user?.isPremium) {
   return NextResponse.json({ error: 'Premium required' }, { status: 403 })
 }
@@ -172,9 +244,40 @@ const FREE_MODELS = [
 
 ### SSR — Server Components con Client Islands
 Mantener la mayor parte del árbol como Server Components. Solo marcar `"use client"` en el componente más pequeño posible:
-- `header.tsx` → Server Component que importa `<LocaleSwitcher />` (client)
+- `header.tsx` → Server Component que importa `<UserInfo />`, `<AuthButtons />`, `<LocaleSwitcher />` (todos client)
 - `footer.tsx` → Server Component que importa `<AnimatedHeart />` (client)
 - `page.tsx` → Server Component que importa `<DreamSection />` (client)
+
+### Layout body — estructura correcta
+```tsx
+// Usar flex + min-h-screen + pt-12 (NO grid + min-h-dvh que causa layout shift en Chrome)
+<body className="flex flex-col min-h-screen pt-12">
+  <AuthSessionProvider>
+    <NextIntlClientProvider messages={messages}>
+      <Header />  {/* position: fixed, top-0, left-0, right-0, h-12 */}
+      <main className="flex flex-1 flex-col">{children}</main>
+      <Footer />
+    </NextIntlClientProvider>
+  </AuthSessionProvider>
+</body>
+```
+
+### Header fijo — por qué `fixed` y no `sticky`
+`sticky` dentro de un grid con `min-h-dvh` causa layout shift en Chrome al hacer soft navigation (ej. cambio de locale con Framer Motion). Usar `position: fixed` + `pt-12` en body como compensación. `min-h-dvh` cambia dinámicamente en Chrome; usar `min-h-screen` (100vh) es más estable.
+
+### Google OAuth — imágenes de avatar
+Agregar `lh3.googleusercontent.com` a `images.remotePatterns` en `next.config.ts`:
+```ts
+images: {
+  remotePatterns: [{ protocol: "https", hostname: "lh3.googleusercontent.com" }],
+},
+```
+
+### Prisma en Vercel — siempre generar el cliente
+Vercel cachea `node_modules`, por lo que el Prisma Client puede quedar desactualizado. Agregar al build script:
+```json
+"build": "prisma generate && next build"
+```
 
 ### next-intl sin plugin (workaround @swc/core)
 El plugin `createNextIntlPlugin` falla en bun porque el `@swc/core` anidado no tiene binarios nativos. Usar alias manual en `next.config.ts`:
@@ -193,10 +296,157 @@ No usar typewriter carácter por carácter (dificulta la lectura). Usar reveal p
 setInterval(() => setVisibleCount(c => c + 1), 60)
 ```
 
-### Webhook de Stripe — siempre verificar firma
+### Stripe — singleton igual que Prisma
 ```ts
-const event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
+// lib/stripe.ts
+const globalForStripe = globalThis as unknown as { stripe: Stripe };
+export const stripe = globalForStripe.stripe ?? new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2026-02-25.clover",
+});
+if (process.env.NODE_ENV !== "production") globalForStripe.stripe = stripe;
 ```
+
+### Webhook de Stripe — leer raw body con req.text()
+En Next.js App Router el webhook lee el body con `req.text()` (no hace falta `bodyParser: false`).
+`export const config = { api: { bodyParser: false } }` es obsoleto en App Router y genera warning:
+```ts
+// ✅ Correcto en App Router
+const body = await req.text();
+const event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!);
+```
+
+### Stripe — Checkout Session: usar origin del request para las URLs de redirect
+No usar `NEXT_PUBLIC_APP_URL` directamente — en local apunta a producción y rompe el redirect:
+```ts
+const origin = req.headers.get("origin") ?? req.headers.get("referer")?.replace(/\/$/, "");
+const baseUrl = origin ?? process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+```
+
+### Stripe — Price ID vs Product ID
+`NEXT_PUBLIC_STRIPE_PRICE_ID` debe ser el ID del **precio** (`price_xxx`), no del producto (`prod_xxx`).
+Se obtiene en Stripe Dashboard → Products → clic en el producto → sección Pricing.
+
+### Stripe — webhook no llega en local si el CLI no está escuchando
+Durante desarrollo, los eventos de Stripe solo llegan a localhost si `stripe listen --forward-to` está activo.
+Para reenviar un evento que se perdió: `stripe events resend <evt_xxx>` con el listener activo.
+El `STRIPE_WEBHOOK_SECRET` del listener local (`whsec_...`) es diferente al de producción — actualizarlo en `.env.local` cada vez que se inicia un nuevo listener.
+
+### JWT — isPremium siempre fresco desde la BD
+El JWT se genera al hacer login y no se actualiza automáticamente cuando Stripe cambia `isPremium` en BD.
+**Solución implementada**: el callback `session` en `lib/auth.ts` hace una query a la BD en cada request para leer `isPremium` fresco:
+```ts
+async session({ session, token }) {
+  if (token) {
+    session.user.id = token.id as string;
+    if (token.picture) session.user.image = token.picture as string;
+    const dbUser = await prisma.user.findUnique({
+      where: { id: token.id as string },
+      select: { isPremium: true },
+    });
+    session.user.isPremium = dbUser?.isPremium ?? false;
+  }
+  return session;
+}
+```
+Esto añade una query por request pero garantiza que el estado premium sea siempre correcto tras el webhook de Stripe.
+
+### Reset de contraseña — flujo completo
+Usar `VerificationToken` de Prisma + Resend para el flujo de recuperación:
+1. `POST /api/auth/forgot-password` — genera token hexadecimal (32 bytes), guarda en `VerificationToken` con 1h de expiración, envía email con Resend. Siempre responde `{ ok: true }` para evitar user enumeration.
+2. `POST /api/auth/reset-password` — valida token + expiry, hashea con bcrypt, actualiza `User.password`, elimina el token en transacción.
+3. Redirect a `/sign-in?reset=1` para mostrar mensaje de éxito.
+- Solo funciona con cuentas que tienen `password` (no OAuth-only).
+- Usar `prisma.verificationToken.deleteMany({ where: { identifier: email } })` antes de crear nuevo token para evitar duplicados.
+
+### Auth guard en middleware — getToken, no auth()
+El middleware corre en Edge Runtime (sin acceso a TCP/Prisma). Usar `getToken` de `next-auth/jwt` para verificar sesión sin activar el callback `session` (que hace query a BD):
+```ts
+import { getToken } from 'next-auth/jwt';
+
+const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+const isAuthenticated = !!token;
+```
+Nunca usar `auth()` directamente en `proxy.ts` cuando el callback `session` hace queries a BD — causa cierre de sesión inesperado en Edge.
+
+Las rutas `AUTH_ROUTES` (`/sign-in`, `/sign-up`, `/forgot-password`, `/reset-password`) redirigen al home si hay sesión.
+Las rutas `PROTECTED_ROUTES` (`/journal`, `/profile`, `/billing`) redirigen a `/sign-in` si no hay sesión.
+
+### Resend — singleton igual que Prisma/Stripe
+```ts
+// lib/email.ts
+const globalForResend = globalThis as unknown as { resend: Resend };
+export const resend = globalForResend.resend ?? new Resend(process.env.RESEND_API_KEY!);
+if (process.env.NODE_ENV !== "production") globalForResend.resend = resend;
+```
+El `from:` debe usar un dominio verificado en Resend. En producción configurar `noreply@<dominio_verificado>`.
+
+### Zod schemas — centralizar en lib/schemas.ts
+No definir schemas Zod inline dentro de los route handlers. Exportarlos desde `lib/schemas.ts` para poder hacer unit tests sin levantar el servidor:
+```ts
+// lib/schemas.ts
+export const registerSchema = z.object({ name: z.string().min(1), email: z.string().email(), password: z.string().min(8) });
+// ...
+// En el route handler:
+import { registerSchema } from '@/lib/schemas';
+```
+
+### Playwright E2E — estructura de proyectos
+El config usa dos proyectos: `setup` (corre primero, guarda `storageState`) y `chromium` (depende de `setup`):
+```ts
+projects: [
+  { name: 'setup', testMatch: /auth\.setup\.ts/ },
+  { name: 'chromium', use: { ...devices['Desktop Chrome'] }, testIgnore: /auth\.setup\.ts/, dependencies: ['setup'] },
+]
+```
+`auth.setup.ts` registra el usuario de prueba via API fetch y guarda `storageState` a `e2e/.auth/user.json`. Los tests que necesitan sesión activa hacen `test.use({ storageState: AUTH_FILE })`.
+
+### Playwright — NextAuth v5 + headless: usar API para setup, UI solo para sign-in
+`signIn("credentials", { callbackUrl })` sin `redirect: false` (flujo del sign-up form) es **no confiable** en NextAuth v5 beta bajo Playwright headless: el redirect post-registro falla intermitentemente.
+
+Patrón correcto para tests de auth:
+1. Seed del usuario de prueba via `request.post('/api/auth/register')` en `beforeAll` — no via UI
+2. Tests de registro llaman la API directamente y verifican el status HTTP (201)
+3. Tests de sign-in/sign-out usan el sign-in form UI (que usa `redirect: false` + `router.push` manual — confiable)
+
+```ts
+test.beforeAll(async ({ request }) => {
+  const res = await request.post('/api/auth/register', {
+    data: { name, email, password },
+  });
+  expect([201, 409]).toContain(res.status()); // 409 = ya existe, ok en retries
+});
+```
+
+### Playwright — suprimir OnboardingModal antes de navegar
+El `OnboardingModal` lee `localStorage` con 800ms de delay. Si no se suprime, el overlay bloquea los clicks en tests. Usar `addInitScript` **antes** de `page.goto()`:
+```ts
+await page.addInitScript(() => {
+  localStorage.setItem('oniric-onboarding-seen', '1');
+});
+await page.goto('/es');
+```
+`addInitScript` corre antes de que el JS de la página se ejecute, a diferencia de `evaluate` que corre después.
+
+### Playwright — tsconfig separado en e2e/
+`lib/ratelimit.test.ts` usa `bun:test` y `e2e/*.spec.ts` usa `@playwright/test` — sus tipos son incompatibles. El root `tsconfig.json` excluye `e2e/`. El directorio `e2e/` tiene su propio `tsconfig.json`:
+```json
+{ "extends": "../tsconfig.json", "compilerOptions": { "types": ["@playwright/test", "node"] } }
+```
+
+### bun test — excluir archivos Playwright
+`bun test` escanea `*.spec.ts` por defecto y crashea al encontrar globals de Playwright (`test.describe`, etc.). Siempre correr con filtro de nombre:
+```bash
+bun test ".test."   # solo corre archivos con .test. en el nombre
+```
+En CI (`ci.yml`), el script de tests usa este filtro. Los specs de Playwright se corren con `playwright test` en su propio workflow (`e2e.yml`).
+
+### Emails de prueba en E2E — usar @example.com
+Zod `.email()` puede rechazar TLDs no estándar como `.local`. Siempre usar `@example.com` en tests E2E:
+```ts
+const TEST_EMAIL = `e2e-flow-${Date.now()}@example.com`; // ✅
+// No: `e2e@test.local` — puede fallar validación Zod
+```
+Usar timestamp en el email para evitar conflictos entre runs paralelos en CI.
 
 ---
 
@@ -211,3 +461,16 @@ const event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHO
 - No usar `react-type-animation` — da mala UX para textos largos (carácter por carácter obliga al ojo a seguir el cursor); usar `WordReveal` propio
 - No usar `createNextIntlPlugin` — falla con bun por binarios nativos de `@swc/core`; usar alias manual en `next.config.ts`
 - No asumir que un modelo gratuito de OpenRouter sigue disponible — siempre definir fallbacks
+- No usar `getServerSession(authOptions)` — es la API de NextAuth v4; en v5 usar `auth()` de `@/lib/auth`
+- No usar `NEXTAUTH_SECRET` / `NEXTAUTH_URL` — NextAuth v5 usa `AUTH_SECRET`; `AUTH_URL` solo necesaria fuera de Vercel
+- No usar `grid min-h-dvh` en el body layout — causa layout shift en Chrome al cambiar locale; usar `flex flex-col min-h-screen`
+- No usar `sticky` en el header si el body es grid — usar `fixed` con `pt-12` en body como compensación
+- No usar `export const config = { api: { bodyParser: false } }` en App Router — obsoleto, genera warning; en App Router el raw body se lee con `req.text()` directamente
+- No usar el Product ID (`prod_xxx`) como `NEXT_PUBLIC_STRIPE_PRICE_ID` — debe ser el Price ID (`price_xxx`)
+- No usar `NEXT_PUBLIC_APP_URL` para las URLs de redirect en Stripe Checkout — usar el `origin` del request para que funcione igual en local y producción
+- No usar `auth()` de NextAuth v5 en `proxy.ts` cuando el callback `session` hace queries a BD — el middleware corre en Edge Runtime sin TCP; usar `getToken` de `next-auth/jwt` en su lugar
+- No correr `bun test` sin filtro de nombre — escanea `*.spec.ts` de Playwright y crashea; usar `bun test ".test."`
+- No usar `signIn("credentials", { callbackUrl })` sin `redirect: false` en tests Playwright — es no confiable en NextAuth v5 beta headless; hacer seed del usuario via API y testear sign-in/sign-out con el form de login
+- No definir schemas Zod inline en route handlers — exportarlos desde `lib/schemas.ts` para poder hacer unit tests
+- No usar TLDs `.local` o `.test` en emails de prueba E2E — pueden fallar la validación de Zod; usar `@example.com`
+- No suprimir el OnboardingModal con `page.evaluate()` — corre después del JS de la página; usar `page.addInitScript()` antes de `page.goto()` para que corra antes del JS

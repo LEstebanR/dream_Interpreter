@@ -18,7 +18,7 @@ export async function HomeFeatures({ locale }: { locale: string }) {
   ];
 
   return (
-    <section className="w-full max-w-3xl mx-auto px-4 pb-20 flex flex-col gap-20">
+    <section className="w-full max-w-3xl mx-auto px-4 pt-20 pb-24 flex flex-col gap-24">
 
       {/* How it works */}
       <div

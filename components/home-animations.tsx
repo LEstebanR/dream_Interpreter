@@ -11,7 +11,7 @@ const item = {
 export function HomeAnimations({ children }: { children: React.ReactNode }) {
   return (
     <motion.div
-      className="flex flex-col items-center gap-3"
+      className="flex flex-col items-center gap-5"
       initial="hidden"
       animate="show"
       transition={{ staggerChildren: 0.1, delayChildren: 0.1 }}

@@ -66,7 +66,8 @@
     "cancelConfirmYes": "Sí, cancelar",
     "cancelConfirmNo": "Mantener Premium",
     "cancelSuccess": "Suscripción cancelada. Mantendrás acceso Premium hasta el final del período de facturación.",
-    "cancelError": "No se pudo cancelar. Inténtalo de nuevo o gestiona tu suscripción."
+    "cancelError": "No se pudo cancelar. Inténtalo de nuevo o gestiona tu suscripción.",
+    "portalError": "No se pudo abrir el portal de facturación. Inténtalo de nuevo más tarde."
   },
   "Pricing": {
     "title": "Planes simples y transparentes",

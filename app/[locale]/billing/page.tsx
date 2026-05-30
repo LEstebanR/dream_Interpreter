@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle } from "lucide-react";
 import { ManageSubscriptionButton } from "@/components/billing/manage-subscription-button";
-import { CancelSubscriptionButton } from "@/components/billing/cancel-subscription-button";
 
 export default async function BillingPage({
   params,
@@ -54,10 +53,7 @@ export default async function BillingPage({
           </div>
 
           {session.user.isPremium ? (
-            <div className="flex flex-col gap-3">
-              <ManageSubscriptionButton locale={locale} />
-              <CancelSubscriptionButton />
-            </div>
+            <ManageSubscriptionButton locale={locale} />
           ) : (
             <Link
               href={`/${locale}/pricing`}

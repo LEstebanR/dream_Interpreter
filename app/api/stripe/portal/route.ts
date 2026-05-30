@@ -25,10 +25,17 @@ export async function POST(req: Request) {
     );
   }
 
-  const portalSession = await getStripe().billingPortal.sessions.create({
-    customer: user.stripeCustomerId,
-    return_url: `${baseUrl}/${lang}/billing`,
-  });
+  let portalSession;
+  try {
+    portalSession = await getStripe().billingPortal.sessions.create({
+      customer: user.stripeCustomerId,
+      return_url: `${baseUrl}/${lang}/billing`,
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Stripe error";
+    console.error("[stripe/portal]", message);
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 
   return NextResponse.json({ url: portalSession.url });
 }

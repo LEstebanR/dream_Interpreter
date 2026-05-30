@@ -18,8 +18,20 @@ export async function POST() {
     return NextResponse.json({ error: "No active subscription" }, { status: 400 });
   }
 
-  await getStripe().subscriptions.update(user.stripeSubscriptionId, {
-    cancel_at_period_end: true,
+  try {
+    await getStripe().subscriptions.cancel(user.stripeSubscriptionId);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Stripe error";
+    console.error("[stripe/cancel]", message);
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+
+  await prisma.user.update({
+    where: { id: session.user.id },
+    data: {
+      isPremium: false,
+      stripeSubscriptionId: null,
+    },
   });
 
   return NextResponse.json({ success: true });

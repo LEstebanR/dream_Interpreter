@@ -15,7 +15,18 @@ export default async function proxy(req: NextRequest) {
 
   // getToken reads the JWT directly without triggering the session callback,
   // which would execute a DB query — not safe in Edge Runtime (no TCP access).
-  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+  // In Auth.js v5, tokens are JWE-encrypted. The cookie name (used as salt for
+  // decryption) differs by protocol: __Secure- prefix is added on HTTPS (production).
+  const isSecure = req.nextUrl.protocol === 'https:';
+  const cookieName = isSecure
+    ? '__Secure-authjs.session-token'
+    : 'authjs.session-token';
+  const token = await getToken({
+    req,
+    secret: process.env.AUTH_SECRET,
+    cookieName,
+    salt: cookieName,
+  });
   const isAuthenticated = !!token;
 
   const localeMatch = pathname.match(/^\/(es|en)/);

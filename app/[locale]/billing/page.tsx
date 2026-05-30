@@ -53,7 +53,7 @@ export default async function BillingPage({
           </div>
 
           {session.user.isPremium ? (
-            <ManageSubscriptionButton locale={locale} />
+            <ManageSubscriptionButton />
           ) : (
             <Link
               href={`/${locale}/pricing`}

@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 type Step = "idle" | "confirm" | "loading" | "done" | "error";
 
-export function ManageSubscriptionButton({ locale: _locale }: { locale: string }) {
+export function ManageSubscriptionButton() {
   const t = useTranslations("Billing");
   const [step, setStep] = useState<Step>("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
